@@ -352,12 +352,14 @@ warrant.
 | attach | from this repository |
 |---|---|
 | the ranked 1,000, alphabetized | `sources/jazzstandards_ranked_1000.tsv` |
-| the pooled candidate set | `sources/pool_1419_alphabetical.tsv` |
+| the pooled candidate set, no answers on it | `sources/pool_1419_candidates.tsv` |
 | your Rule 5 declaration | `prompts/filter_card_TEMPLATE.md`, filled in |
 | the seated lists, for a check pass | `data/index_membership_729.tsv` |
 | the declines, for Stage Four | `residues/all_700_declined.tsv` |
 | Watkins and Miller, for Stage Six only | `sources/watkins_*.tsv`, `sources/miller_*.tsv` |
 
-Levine chapter 21 and Gioia are books. They are not in this repository and cannot be. What is
-here is the residue each produced: `residues/appendix_A_levine_unique_419.tsv` and
-`residues/appendix_D_gioia_declined_6.tsv`.
+**You do not need the two books to run this.** The pool is the candidate list and it is published
+here. Warrant 1 is settled by the ranking, complete at `sources/jazzstandards_ranked_1000.tsv`.
+Warrant 2 is settled for every title it can decide on its own by
+`residues/appendix_A_levine_unique_419.tsv`, complete at 419. Warrant 3 admits nothing in this
+edition and the prompt says so where it matters. `prompts/README.md` sets this out in a table.
