@@ -1,0 +1,43 @@
+DATA LICENSE
+
+The data files produced by this project are licensed under the
+Creative Commons Attribution 4.0 International License (CC BY 4.0).
+
+    https://creativecommons.org/licenses/by/4.0/
+
+Copyright (c) 2026 Geoffrey Jacob Caputo
+
+WHAT THIS COVERS
+
+  data/       the Index, the evidence join, the tier separation, the priority pages
+  residues/   the four printed residues
+  csv/        the same tables in another format
+  RBI_replication_data.xlsx
+  sources/pool_1419_alphabetical.tsv     the merged and deduplicated candidate pool
+  sources/title_anomalies.tsv            the title-matching register
+
+You may share and adapt these, including commercially, provided you give
+attribution, link to the license, and state whether you changed anything.
+
+Suggested attribution:
+
+    Caputo, Geoffrey Jacob. The Realistic Book Index: replication data.
+    2026. CC BY 4.0. <repository URL>
+
+WHAT THIS DOES NOT COVER
+
+The remaining files in sources/ are transcriptions of work published by other
+people, made so that the figures in the volume can be checked:
+
+  jazzstandards_ranked_1000.tsv      compiled by jazzstandards.com
+  watkins_2010_*.tsv                 Mark Watkins, "Repertoire" (2010)
+  miller_london_calls_308.tsv        David Miller's call log
+  miller_published_201.tsv           David Miller's published selection
+
+Those are not this project's to license. They are attributed in full in SOURCES.md,
+which gives the address or edition of each so that anyone may take them from the
+source rather than from here. Where a transcription differs from its published
+source, the published source governs.
+
+Mark Levine, The Jazz Theory Book, and Ted Gioia, The Jazz Standards, are books.
+Their title lists are not reproduced in this repository at all.
