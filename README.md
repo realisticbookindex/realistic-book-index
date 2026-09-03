@@ -185,8 +185,6 @@ ranking, because that set is this project's own derivation and is printed in the
 the full 964 is not here and has to be taken from the book. `SOURCES.md` gives the ISBN, the
 page range and the extraction method.
 
-The fourteen collegiate program lists are not here either. They were retrieved on one day in
-2026, and a replication should re-retrieve and re-date them rather than inherit a snapshot.
 
 ---
 
