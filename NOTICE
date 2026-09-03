@@ -1,0 +1,17 @@
+THE REALISTIC BOOK INDEX - replication data
+Copyright 2026, Geoffrey Jacob Caputo. All rights reserved.
+
+The files in data/, residues/ and code/ are the work of this project.
+
+The files in sources/ are transcriptions of work published by others, made for the
+purpose of verification and replication, and are attributed in full in SOURCES.md.
+They are included so that the figures in the volume can be checked. Where a count in
+a transcription differs from its published source, the published source governs.
+
+The ranking at sources/jazzstandards_ranked_1000.tsv is compiled by jazzstandards.com.
+The survey extracts at sources/watkins_*.tsv are from Mark Watkins, "Repertoire" (2010),
+Brigham Young University-Idaho. The call log at sources/miller_*.tsv is David Miller's,
+and is already published in machine-readable form at the address given in SOURCES.md.
+
+Mark Levine, The Jazz Theory Book, and Ted Gioia, The Jazz Standards, are books. Their
+title lists are not reproduced here. See SOURCES.md.

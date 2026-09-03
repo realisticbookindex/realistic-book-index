@@ -1,0 +1,30 @@
+# source-normalized key -> RBI normalized key
+ALIAS = {
+ 'blackorpheus':'manhadecarnaval',
+ 'inamellowtone':'inamellotone',
+ 'backhomeagaininindiana':'indiana',
+ 'take5':'takefive',
+ 'ourloveisheretostay':'loveisheretostay',
+ 'freddiethefreeloader':'freddiefreeloader',
+ 'wee':'allensalley',
+ 'unit7':'unitseven',
+ 'noblues':'pfrancing',
+ 'myfavouritethings':'myfavoritethings',
+ 'shadowofthesmile':'shadowofyoursmile',
+ 'georgia':'georgiaonmymind',
+ 'bluebolivarblues':'bolivarblues',
+ 'chegadesaudade':'nomoreblues',
+ 'canttakethatawayfromme':'theycanttakethatawayfromme',
+ 'eastofthesunandwestofthemoon':'eastofthesun',
+ 'donothingtillyouhearfromme':'donothintillyouhearfromme',
+ 'jumponatthewoodside':'jumpinatthewoodside',
+ 'whatadifferenceadaymakes':'whatadifferenceadaymade',
+ 'canthelplovinthatman':'canthelplovindatman',
+ 'wellyouneedent':'wellyouneednt',
+ 'senorblues':'senorblues',
+ 'waltzfordebbie':'waltzfordebby',
+ 'bluetrain':'bluetrane',
+ 'jodiegrind':'jodygrind',
+ 'mysecretlove':'secretlove',   # declared in the Invitation, Draft 10.3 p.149
+ 'sambadeorpheus':'sambadeorfeu',   # declared at the Appendix A head-note, Draft 10.3 p.65
+}
