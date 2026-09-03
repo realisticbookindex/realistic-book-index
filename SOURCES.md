@@ -109,12 +109,52 @@ must be refused. All are in `code/aliases.py`.
 
 ---
 
+## How these files present, and what that does not fix
+
+Every file in `sources/` presents alphabetically by title. Whatever ordering datum the source
+itself carries - a recording rank, a call count, a contributor count - travels as a column
+rather than as the sequence of the file. `code/alpha.py` states the convention and
+`code/verify.py` asserts it. The convention was set by the pool file and the other five were
+brought to it, so the repository sorts one way throughout.
+
+**This removes the arrangement from the file. It does not remove it from the data, and the
+distinction is stated here rather than left to be discovered.** A reader who sorts
+`jazzstandards_ranked_1000.tsv` on its rank column has the ranking back in one click. The rank
+is retained because it is the datum the closing section of this volume turns on: the finding
+that recording rank and call frequency do not order the same titles cannot be checked by anyone
+who has been handed the titles without the ranks.
+
+What is claimed is narrower than the sort suggests, and is this. These files are a keyed working
+copy rather than a substitute for any source. Each was normalized, folded against
+`code/aliases.py` and joined for one purpose. No selection is taken from any source - the
+ranking is carried entire, at 1,000 of 1,000. The rank of a title is a fact about how often it
+was recorded, and facts do not become the property of whoever counted them. What a compilation
+can hold is the selection and the arrangement, and neither is reproduced here.
+
+Anyone who would rather not inherit even that much can run `code/fetch_ranking.py`, which does
+not fetch anything. It names the ten pages the ranking is published on and states the procedure,
+so that a replicator builds their own copy from the source, dates their own retrieval, and
+observes the site's terms in taking it. `code/verify.py` will check the result against the same
+1,000 ranks with no gaps.
+
+**Three files in `residues/` are excluded from the convention and stay as they are.** Appendices
+A through D print in the volume with entry numbers, and re-sorting them would change numbers a
+reader is holding in a book. They sort three different ways among themselves - Appendix C by raw
+character order, so that `'Tis Autumn` heads the list and `12th Street Rag` precedes
+`9:20 Special`; Appendices A and B letter by letter with spaces ignored, so that `Bluebird`
+precedes `Blue Daniel`. The pool file sorts word by word with spaces significant. **This is an
+inconsistency in the printed volume, it is recorded here rather than repaired, and it changes no
+figure.** `miller_published_201.tsv` likewise keeps the order Miller published, which is
+alphabetical with articles left in place.
+
+---
+
 ## Not included, and why
 
 **The fourteen collegiate program lists.** Retrieved on one day, 26 August 2026, from fourteen
 degree-granting jazz programs publishing required or expected repertoire. A replication should
 re-retrieve and re-date rather than inherit a snapshot. The union is sensitive to six folding
-rules; without them a replicator lands anywhere between 455 and 470 titles.
+rules; without them a replicator lands anywhere between 455 and 486 titles.
 
 **The pedagogical and play-along series** cited for the skill path. These informed
 stratification and are not sources of survey warrant.

@@ -48,8 +48,10 @@ London sessions from 2019. Both are in `sources/`.
 data/         the Index and everything derived from it
 sources/      the source lists as keyed for this project
 residues/     the four printed residues - what the method rejected
+panel/        the fourteen collegiate programs, their URLs, and the pooled titles
+prompts/      the three prompts the method runs on, and the filter card you fill in
 csv/          the same tables as .csv, for double-clicking
-code/         normalization, the alias map, and the verification battery
+code/         normalization, the alias map, the sort convention, and the verification battery
 SOURCES.md    where every source came from and how to get it yourself
 ```
 
@@ -68,6 +70,16 @@ delimiter or encoding decision from you.
 | `evidence_join_819.tsv` | 819 | the Index joined to both call instruments, **plus every title either instrument names that the Index does not carry**. `seat_d103` is `-` for those |
 | `tier_pair_separation.tsv` | 12 | for each pair of tiers, the share of title-against-title comparisons in which the lower tier comes out ahead, by each of three measures. Ties count as half, so 50 means the measure does not separate the two tiers |
 | `priority_list1.tsv` … `priority_lists4_5.tsv` | 146 / 91 / 38 / 30 | the practice-order pages: which titles any external measure reaches, and in what order |
+
+### `sources/`
+
+**Every file here presents alphabetically by title.** The ordering datum a source carries - a
+recording rank, a call count, a contributor count - travels as a column rather than as the
+sequence of the file, so no file in this directory reproduces the arrangement of the compilation
+it was keyed from. `code/alpha.py` states the convention, `code/verify.py` asserts it, and
+`SOURCES.md` says what that does and does not settle. Sorting a file on its datum column puts
+the source's order back, which is intended: the ranks are here because the volume's closing
+finding cannot be checked without them.
 
 ### `sources/pool_1419_alphabetical.tsv`
 
@@ -92,6 +104,42 @@ attacking and are therefore printed in full.
 
 `B + C = 700`, the declined total. Appendix D is a cross-reference: all six also appear in
 Appendix C, so adding D again double-counts.
+
+`residues/all_700_declined.tsv` is all of them in one alphabetical sequence, with which
+appendix each came from, its rank where it has one, and whether either call instrument
+reaches it. **464 of the 700 carry a recording rank, 21 appear in the London log, and 8 carry
+any reference in the survey.** This is the file to search when you want to know why a
+particular title is not in the Index.
+
+### `prompts/`
+
+**The data lets you check this edition. The prompts let you build your own.** Three, in the order
+they run: the screening prompt that seats titles, the skill-path prompt that assigns practice
+phases, and the listening prompt that returns recordings stage by stage. Plus
+`filter_card_TEMPLATE.md`, which is the one part of the method a replicator has to write.
+
+Start at `prompts/README.md`. It carries the running order, what to attach at each step, the four
+printed defects reproduced rather than repaired, and the reason not to close your arithmetic to
+this edition's 729.
+
+### `panel/`
+
+Fourteen degree-granting jazz programs that publish a required or expected repertoire list,
+retrieved on one day, 26 August 2026. The panel was consulted after the Index closed. **It
+admitted no title.**
+
+| file | rows |
+|---|---|
+| `collegiate_panel_sources.tsv` | the fourteen programs, with the document, its URL, format, printed row and title counts, and any folding note |
+| `collegiate_panel_union.tsv` | 486 pooled titles, each with how many programs carry it, the numbered Index entry it lands on, which programs list it, and every printed form |
+
+The fourteen URLs are live documents and several will have changed. **Re-retrieve and re-date
+rather than inheriting this snapshot.**
+
+`index_entry` names a seat, not a string. Two panel titles can land on one seat, which is how a
+line count can exceed the size of the tier it is counting into. `panel/README.md` carries the
+scope reconciliation, the reason this file returns 486 where the volume prints 462, and the four
+statements that survive every count in that band.
 
 ---
 
@@ -185,8 +233,24 @@ ranking, because that set is this project's own derivation and is printed in the
 the full 964 is not here and has to be taken from the book. `SOURCES.md` gives the ISBN, the
 page range and the extraction method.
 
+The fourteen collegiate program lists are not here either. They were retrieved on one day in
+2026, and a replication should re-retrieve and re-date them rather than inherit a snapshot.
 
 ---
+
+## License
+
+Three different things live here and they are licensed three different ways, because only two
+of them are this project's to license.
+
+| | license |
+|---|---|
+| the code in `code/` | MIT - see `LICENSE` |
+| the data this project produced: `data/`, `residues/`, `csv/`, the workbook, the pool and the anomaly register | CC BY 4.0 - see `LICENSE-DATA` |
+| the transcribed source lists in `sources/` | not licensed here; attributed in `SOURCES.md`, take them from the source |
+
+Attribution is the only condition on the data. Use it, change it, publish a different answer
+from it - that is what it is for. Say where it came from.
 
 ## Attribution
 

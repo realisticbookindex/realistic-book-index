@@ -14,6 +14,7 @@ import csv, os, sys, collections, re
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from norm import base, full
 from aliases import ALIAS
+from alpha import in_alpha_order
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 def T(p):
@@ -54,7 +55,7 @@ print("=" * 66)
 print("SOURCE COUNTS")
 print("=" * 66)
 check("ranked source is 1,000 titles",              len(js), 1000)
-check("ranks run 1..1000 with no gaps",             [int(r['rank']) for r in js], list(range(1,1001)))
+check("ranks run 1..1000 with no gaps",             sorted(int(r['rank']) for r in js), list(range(1,1001)))
 check("Watkins List 1 is 92 titles",                len(w1), 92)
 check("Watkins List 2 is 96 titles",                len(w2), 96)
 check("Watkins categorical listing is 137 rows",    len(wcat), 137)
@@ -83,6 +84,12 @@ check("residues close: 537 retained + 463 = 1,000", (1000-len(resC)) + len(resC)
 check("residues close: 182 retained + 237 = 419",   (419-len(resB)) + len(resB), 419)
 check("Route 1, by warrant: 537 + 182 + 0 + 10",    537 + 182 + 0 + 10, 729)
 check("declined and printed in full is 700",        len(resB) + len(resC), 700)
+allD = T('residues/all_700_declined.tsv')
+check("the combined decline file holds 700",         len(allD), 700)
+check("  237 of them came from the chapter",         sum(1 for r in allD if r['appendix'] == 'B'), 237)
+check("  463 of them came from the ranking",         sum(1 for r in allD if r['appendix'] == 'C'), 463)
+check("  all 6 Appendix D titles are cross-marked",  sum(1 for r in allD if r['also_in_appendix_D']), 6)
+check("  21 of the 700 appear in the log",           sum(1 for r in allD if r['miller_calls']), 21)
 
 pool = T('sources/pool_1419_alphabetical.tsv')
 check("the pool is 1,419 titles",                   len(pool), 1419)
@@ -170,6 +177,46 @@ check("  21 appear anywhere in the Miller log",     sum(1 for h in hits if I(h['
 check("  they carry 56 of 2,038 calls",             sum(I(h['miller_calls']) for h in hits), 56)
 check("  none sits on a Watkins printed list",
       sum(1 for h in hits if h['watkins_band'].startswith('List')), 0)
+
+print()
+print("=" * 66)
+print("NO SOURCE FILE REPRODUCES ITS SOURCE'S ARRANGEMENT")
+print("=" * 66)
+for _f, _c in [('sources/jazzstandards_ranked_1000.tsv',    'title_as_ranked'),
+               ('sources/miller_london_calls_308.tsv',      'title_as_logged'),
+               ('sources/watkins_2010_list1_92.tsv',        'title'),
+               ('sources/watkins_2010_list2_96.tsv',        'title'),
+               ('sources/watkins_2010_categorical_137.tsv', 'title'),
+               ('sources/pool_1419_alphabetical.tsv',       'title')]:
+    check(f"  {_f.split('/')[-1]} is alphabetical",
+          in_alpha_order([r[_c] for r in T(_f)]), True)
+print("      the ordering datum each source carries travels as a column, not as the")
+print("      sequence of the file. code/alpha.py states the convention.")
+
+print("=" * 66)
+print("THE COLLEGIATE PANEL")
+print("=" * 66)
+psrc = T('panel/collegiate_panel_sources.tsv')
+puni = T('panel/collegiate_panel_union.tsv')
+check("fourteen programs are listed with URLs",      len(psrc), 14)
+check("  every one carries a URL",                   sum(1 for r in psrc if r['url'].startswith('http')), 14)
+check("  their printed rows sum to 1,496",           sum(I(r['rows_as_printed']) for r in psrc), 1496)
+check("  all retrieved on one day",                  len({r['retrieved'] for r in psrc}), 1)
+check("no title is carried by all fourteen",         sum(1 for r in puni if I(r['programs']) == 14), 0)
+check("  none by thirteen either",                   sum(1 for r in puni if I(r['programs']) == 13), 0)
+check("  about two in five sit at one school",
+      round(100 * sum(1 for r in puni if I(r['programs']) == 1) / len(puni)), 43)
+pseat = lambda t: len({r['index_entry'] for r in puni if r['in_the_index'] == t})
+check("the panel reaches all 93 seats of List 1A",   pseat('List 1A'), 93)
+check("  List 1B, 52 of 53",                         pseat('List 1B'), 52)
+check("  List 2, 87 of 116",                         pseat('List 2'), 87)
+check("  List 3, 47 of 141",                         pseat('List 3'), 47)
+check("  List 4, 16 of 99",                          pseat('List 4'), 16)
+check("  List 5, 88 of 227",
+      sum(pseat(t) for t in ('List 5A', 'List 5B', 'List 5C')), 88)
+check("  seats, not lines - 1A takes 94 panel titles into 93 seats",
+      sum(1 for r in puni if r['in_the_index'] == 'List 1A'), 94)
+print(f"      union {len(puni)}; the volume prints 462 and the gap is folding, not scope - see panel/README.md")
 
 print()
 print("=" * 66)
