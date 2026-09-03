@@ -190,6 +190,14 @@ for _f, _c in [('sources/jazzstandards_ranked_1000.tsv',    'title_as_ranked'),
                ('sources/pool_1419_alphabetical.tsv',       'title')]:
     check(f"  {_f.split('/')[-1]} is alphabetical",
           in_alpha_order([r[_c] for r in T(_f)]), True)
+cand = T('sources/pool_1419_candidates.tsv')
+check("  the blind candidate file is the same 1,419 titles",
+      [r['title'] for r in cand], [r['title'] for r in T('sources/pool_1419_alphabetical.tsv')])
+check("  and carries no disposition column",
+      list(cand[0].keys()), ['title'])
+check("  the pool is the ranking plus the chapter's unique set",
+      len(T('sources/jazzstandards_ranked_1000.tsv')) + len(T('residues/appendix_A_levine_unique_419.tsv')),
+      1419)
 print("      the ordering datum each source carries travels as a column, not as the")
 print("      sequence of the file. code/alpha.py states the convention.")
 
