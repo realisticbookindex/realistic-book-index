@@ -190,6 +190,25 @@ for _f, _c in [('sources/jazzstandards_ranked_1000.tsv',    'title_as_ranked'),
                ('sources/pool_1419_alphabetical.tsv',       'title')]:
     check(f"  {_f.split('/')[-1]} is alphabetical",
           in_alpha_order([r[_c] for r in T(_f)]), True)
+from aliases import HOMONYMS
+_pool_keys = {}
+for _r in T('sources/pool_1419_candidates.tsv'):
+    _k = base(_r['title']); _k = ALIAS.get(_k, _k)
+    _pool_keys.setdefault(_k, []).append(_r['title'])
+check("only a declared homonym collides in the pool",
+      {k for k, v in _pool_keys.items() if len(v) > 1}, HOMONYMS)
+check("  the pool splits 1,000 ranked and 419 unique to the chapter",
+      [len(T('sources/jazzstandards_ranked_1000.tsv')),
+       len(T('residues/appendix_A_levine_unique_419.tsv'))], [1000, 419])
+
+dq = T('data/decision_queue_1419.tsv')
+check("the decision queue is the whole pool",       len(dq), 1419)
+check("  it reaches 1,000 ranks and 419 chapter entries",
+      [sum(1 for r in dq if r['warrant_1_rank']),
+       sum(1 for r in dq if r['warrant_2_chapter'])], [1000, 419])
+check("  and it renders no verdict on any of them",
+      sum(1 for r in dq if r['verdict'] or r['tier'] or r['division']), 0)
+
 gs  = T('sources/graded_series_552.tsv')
 gsv = T('sources/graded_series_volumes_27.tsv')
 check("the graded-series pool is 552 rows",           len(gs), 552)

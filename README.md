@@ -148,6 +148,30 @@ covers the 44 rows that concern declined or source-only titles, which have no se
 `verify.py` asserts the index is derived from the register, that every row lands on a real seat,
 and that no refused join appears in it.
 
+### `code/build_queue.py` - the mechanical half, run in one command
+
+```
+python3 code/build_queue.py     ->  data/decision_queue_1419.tsv
+```
+
+**1,419 candidates, every machine-derivable fact attached, and no verdict on any of them.**
+Recording rank, chapter presence, both call instruments, the graded-series floor, what the
+collegiate panel reaches, and the scan mark the stated rule returns. Four columns are left empty
+because they are not derivable: `verdict`, `division`, `tier`, `ground_if_declined`.
+
+**This is where automation stops, and the reason is the volume's whole argument.** Every one of
+the 1,419 carries a source warrant, because the pool *is* the union of the three warrant sources.
+Warrant checking therefore declines no one. **The reduction from 1,419 to a seated Index is the
+practitioner filter doing all of it**, and the filter is one player's observation of call
+likelihood - the step Rule 5 says cannot be inherited.
+
+What that buys a replicator is the whole clerical burden, gone. What it cannot buy is a single
+decline.
+
+**856 of the 1,419 carry no external evidence of any kind** - no survey mention, no logged call,
+no graded series, no collegiate list. On those, the filter is not one signal among several. It is
+the only one.
+
 ### The skill path, and how to rebuild it from scratch
 
 Rule 13B assigns practice phases against a floor of graded pedagogical series. Two files carry
