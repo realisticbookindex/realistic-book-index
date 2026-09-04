@@ -190,6 +190,36 @@ for _f, _c in [('sources/jazzstandards_ranked_1000.tsv',    'title_as_ranked'),
                ('sources/pool_1419_alphabetical.tsv',       'title')]:
     check(f"  {_f.split('/')[-1]} is alphabetical",
           in_alpha_order([r[_c] for r in T(_f)]), True)
+gs  = T('sources/graded_series_552.tsv')
+gsv = T('sources/graded_series_volumes_27.tsv')
+check("the graded-series pool is 552 rows",           len(gs), 552)
+check("  across 27 volumes",                          len({r['block_id'] for r in gs}), 27)
+check("  resolving to 453 compositions",              len({r['match_key'] for r in gs}), 453)
+check("  the volume manifest sums to the pool",       sum(I(r['titles']) for r in gsv), 552)
+check("  every volume is banded",
+      sum(1 for r in gsv if r['band_assigned'] in
+          ('Foundational','Emerging Intermediate','Intermediate')), 27)
+_gsu = {}
+for _r in gs: _gsu.setdefault(_r['match_key'], _r['status'])
+check("  170 of the 453 are seated in this Index",
+      sum(1 for v in _gsu.values() if v == 'seated'), 170)
+check("  34 were declined, and 249 never entered the pool",
+      [sum(1 for v in _gsu.values() if v == 'declined'),
+       sum(1 for v in _gsu.values() if v == 'outside')], [34, 249])
+print("      the floor Rule 13B section 5 calls for. It grants no warrant and admits nothing.")
+
+alias = T('sources/title_alias_index.tsv')
+anom_keys = {r['match_key'] for r in T('sources/title_anomalies.tsv')}
+mem_keys  = {r['key'] for r in idx}
+check("the alias index is derived from the anomaly register",
+      sum(1 for r in alias if r['match_key'] not in anom_keys), 0)
+check("  every alias row points at a seated title",
+      sum(1 for r in alias if r['match_key'] not in mem_keys), 0)
+check("  and at a seat that exists",
+      sum(1 for r in alias if not r['tier'].startswith('List ') or not r['entry_no'].isdigit()), 0)
+check("  a refused join is never presented as an alias",
+      len({r['match_key'] for r in T('sources/title_anomalies.tsv')
+           if r['anomaly_class'] == 'refused join'} & {r['match_key'] for r in alias}), 0)
 cand = T('sources/pool_1419_candidates.tsv')
 check("  the blind candidate file is the same 1,419 titles",
       [r['title'] for r in cand], [r['title'] for r in T('sources/pool_1419_alphabetical.tsv')])
