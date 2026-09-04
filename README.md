@@ -83,6 +83,11 @@ finding cannot be checked without them.
 
 ### `sources/pool_1419_alphabetical.tsv`
 
+**Two versions of the pool ship here, and which one you take matters.**
+`sources/pool_1419_candidates.tsv` is the 1,419 titles and nothing else - no disposition column,
+so it does not tell a screener what this edition decided. **That is the one to screen from.** The
+file described next carries the answers and is for comparing afterward.
+
 `sources/pool_1419_alphabetical.tsv` is the candidate pool: all 1,419 titles in one
 alphabetical sequence with each title's disposition, retained to a list or declined. It is a
 merge of three sources rather than a reproduction of any one of them, it carries no column
@@ -121,6 +126,50 @@ phases, and the listening prompt that returns recordings stage by stage. Plus
 Start at `prompts/README.md`. It carries the running order, what to attach at each step, the four
 printed defects reproduced rather than repaired, and the reason not to close your arithmetic to
 this edition's 729.
+
+### Three files handle title variance, and they are not interchangeable
+
+Two lists of jazz standards disagree about punctuation, articles, alternate names and spelling
+before they disagree about anything that matters. Three files here address that, each answering a
+different question.
+
+| file | question it answers | scope |
+|---|---|---|
+| `code/aliases.py` | *what does the code fold together?* | 27 folds, the operative map every join in this repository applies |
+| `sources/title_anomalies.tsv` | *why did the join behave that way?* | 453 rows, 200 compositions - every hazard across every source, **including the ones that did not resolve** |
+| `sources/title_alias_index.tsv` | *where does this name land?* | 124 rows, 84 compositions - name to seat, seated titles only |
+
+**The register is the audit trail and the index is the finding aid.** The register carries what
+the index cannot: 8 refused joins, which are pairs that look alike and are *not* the same
+composition; 3 cases of one name over two works; 3 source defects; 4 extraction hazards. Putting
+a refused join in an alias index would assert the opposite of what the register found. It also
+covers the 44 rows that concern declined or source-only titles, which have no seat to point at.
+
+`verify.py` asserts the index is derived from the register, that every row lands on a real seat,
+and that no refused join appears in it.
+
+### The skill path, and how to rebuild it from scratch
+
+Rule 13B assigns practice phases against a floor of graded pedagogical series. Two files carry
+that floor, so a replicator can run the phase pass without owning seventeen books.
+
+| file | rows | what it is |
+|---|---|---|
+| `sources/graded_series_volumes_27.tsv` | 27 | every volume: publisher, work, volume, title count, the band this edition assigned it, and its ISBN or catalogue number |
+| `sources/graded_series_552.tsv` | 552 | every title in every one of those volumes, with the seat it lands on in this Index, or `declined`, or `outside` |
+
+**453 distinct compositions.** 170 are seated here, 34 were declined and print at a residue, and
+249 never entered the pool at all. That last figure is the one to read carefully: a graded series
+teaches ensemble literature and educational originals alongside standards, and this Index counts
+what gets called. **The two populations overlap on the standards and diverge everywhere else, and
+the divergence is the measurement rather than a miss.**
+
+Per-volume reach runs from 94 percent (Hal Leonard *Easy Jazz Play-Along* vol 2) to zero (Sher
+*Latin Real Easy Book* Part 2). **A play-along teaches the repertoire; a school ensemble method
+teaches the ensemble.** The two ends of that range are two different kinds of book.
+
+**None of this grants a warrant.** TABLE V.2 in the volume says so and Rule 13B repeats it: these
+sources inform the stratification and admit no title.
 
 ### `panel/`
 
@@ -233,8 +282,21 @@ ranking, because that set is this project's own derivation and is printed in the
 the full 964 is not here and has to be taken from the book. `SOURCES.md` gives the ISBN, the
 page range and the extraction method.
 
-The fourteen collegiate program lists are not here either. They were retrieved on one day in
-2026, and a replication should re-retrieve and re-date them rather than inherit a snapshot.
+The fourteen collegiate documents are not here either, though their pooled titles are, at
+`panel/`. They were retrieved on one day in 2026 from live web pages and PDFs, and a replication
+should re-retrieve and re-date rather than inherit a snapshot.
+
+**The graded pedagogical series are treated the other way, and the difference is deliberate.**
+Their contents are published in full at `sources/graded_series_552.tsv`, because a print edition
+with an ISBN does not change between retrievals: a replicator can buy any of the 27 volumes and
+check the transcription line by line, which is what `sources/graded_series_volumes_27.tsv` exists
+to make possible. A collegiate program's web page offers no such fixed thing to check against.
+**Snapshot a living document and you have a claim about one day; transcribe a fixed edition and
+you have a claim anyone can audit.**
+
+Appendix G, the contrafact corpus, is the volume's own apparatus rather than a source and is not
+published here. Stage 4 of the listening prompt is unavailable without it, and that prompt is
+written to say so rather than to guess.
 
 ---
 
