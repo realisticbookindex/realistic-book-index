@@ -86,8 +86,18 @@ The compiler seats the phases. Sizes are TABLE IV.5.
 | attach | from this repository |
 |---|---|
 | the seated Lists 1-5 | `data/index_membership_729.tsv` |
+| **the graded-series floor section 5 calls for** | `sources/graded_series_552.tsv` |
+| the volumes behind it, with editions | `sources/graded_series_volumes_27.tsv` |
 | the practice-order pages, if you want the existing phase reading | `data/priority_list1.tsv` through `data/priority_lists4_5.tsv` |
 
-The graded series - Sher Real Easy, Aebersold 54 and 70 - are published books and are not in this
-repository. A replicator substituting a different series should name it, which is what section 5
-asks for.
+**You do not need the seventeen books to run this.** Section 5 says *"if the title is in Sher Real
+Easy or Aebersold 54 / 70, start there,"* and that floor is published here: 552 title lines across
+27 volumes, 453 distinct compositions, each carrying the seat it lands on in this Index or the
+note that it was declined or never entered the pool. `graded_series_volumes_27.tsv` gives the
+volume, its title count, the band this edition assigned it, and its ISBN or catalogue number, so
+a replicator can buy any volume they want to check rather than inherit the transcription.
+
+**Substituting a different series is the better replication**, and section 5 is written for it -
+*"Then use any other attached graded series. Cite the edition."* A replicator who grades against
+their own shelf and lands on different phases has produced a finding. One who reuses this floor
+has reproduced an arithmetic.
