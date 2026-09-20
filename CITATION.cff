@@ -1,15 +1,15 @@
 cff-version: 1.2.0
 message: "Cite the version DOI Zenodo mints for this release. The DOI and the release tag are printed in the note to App. J Rule 13 of the volume."
 title: "The Realistic Book Index: replication materials"
-version: "15.0.0"
-date-released: "PASTE-THE-RELEASE-DATE-HERE"
+version: "15.0.1"
+date-released: "2026-09-20"
 identifiers:
   - description: "All versions of these replication materials"
     type: doi
-    value: PASTE-THE-CONCEPT-DOI-HERE
-  - description: "The archived snapshot of v15.0.0, the release the App. J Rule 13 checksum belongs to"
+    value: 10.5281/zenodo.22861481
+  - description: "The archived snapshot of v15.0.1, the release the App. J Rule 13 checksum belongs to"
     type: doi
-    value: PASTE-THE-VERSION-DOI-HERE
+    value: 10.5281/zenodo.22862514
 authors:
   - family-names: "Caputo"
     given-names: "Geoffrey Jacob"
