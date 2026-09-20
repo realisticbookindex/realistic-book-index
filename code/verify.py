@@ -326,6 +326,18 @@ check("Rule 9, from the ranking file: 536 seated + 464 declined = 1,000, disjoin
       (len(RANKED & SEATED_KEYS), len(RANKED & RC), len(RC & SEATED_KEYS), len(RANKED)),
       (536, 464, 0, 1000))
 
+# ------------------------------------------------- the style file's ballad column (tool input)
+# Not an apparatus figure. No count in the volume depends on it and no mark prints for it.
+# It is declared here so it is recountable rather than only asserted, like the rest of the file.
+SC = read("data/style_classification.tsv")
+_SEATS = {(x["index"], x["seat"]) for x in M}
+check("the style file's ballad column: 75 marks, all on seated rows, no other value",
+      (len(SC),
+       sum(1 for r in SC if r["ballad"] == "Y"),
+       sorted({r["ballad"] for r in SC} - {"Y", ""}),
+       sorted(r["title"] for r in SC if r["ballad"] == "Y" and (r["index"], r["seat"]) not in _SEATS)),
+      (520, 75, [], []))
+
 # ---------------------------------------------------------------- the prompt (App. J Rule 13)
 pp = os.path.join(ROOT, "prompts", "rule_13_screening_prompt.txt")
 raw = open(pp, "rb").read()

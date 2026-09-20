@@ -6,7 +6,7 @@ This repository holds the files *The Realistic Book Index* (Draft 15) sends a re
 python3 code/verify.py
 ```
 
-The script runs 89 checks, prints one line for each, and exits 0 when all pass. It needs Python 3 and nothing else. Twelve of the checks rebuild a join rather than read a column: App. E is reconstructed from `sources/` back to the seated titles, Rule 9's ranking closure is recomputed from the ranking file and App. C, and the two data files are held against each other. A column cannot confirm itself, and those twelve are what a replicator's own run does.
+The script runs 90 checks, prints one line for each, and exits 0 when all pass. It needs Python 3 and nothing else. Twelve of the checks rebuild a join rather than read a column: App. E is reconstructed from `sources/` back to the seated titles, Rule 9's ranking closure is recomputed from the ranking file and App. C, and the two data files are held against each other. A column cannot confirm itself, and those twelve are what a replicator's own run does.
 
 **Two things to do first, if this is your first time.** On macOS, typing `python3` opens a dialog offering to install the developer tools; accept it, wait, and try again. On Windows, install Python from python.org and tick "Add python.exe to PATH" on the first screen. Nothing else is needed - no libraries, no accounts, no setup.
 
@@ -57,6 +57,24 @@ Two call instruments were opened after the Index closed and admit nothing: Mark 
 
 ---
 
+## One column the volume does not carry
+
+`data/style_classification.tsv` holds a `ballad` column, marking 75 of the 520 rows. It is
+the only column in this repository with no locus in the volume, and it is here on purpose
+rather than by omission.
+
+The volume declines to make tempo claims. A leader sets every tempo on the night and a
+vocalist moves every key, so no mark prints for a ballad, no count depends on one, and
+nothing in Appendix J asks a replicator to name any. The column exists because a tool built
+on this data wanted the distinction and would otherwise have carried it privately, which
+would have made it unassailable. It is a reading of which titles are habitually counted off
+slow. It is not documentary, it is not derived from either book, and a replication that
+ignores it loses nothing.
+
+It is checked like the rest of the file - 75 marks, every one on a seated row, no third
+value - so that a reader who disagrees with it can see exactly what it claims before
+disagreeing.
+
 ## Layout, and the volume pointer each file answers
 
 | file | rows | what it is | the volume's pointer |
@@ -64,7 +82,7 @@ Two call instruments were opened after the Index closed and admit nothing: Mark 
 | `data/index_membership_729.tsv` | 729 | one row per seat: index, seat, title as printed, form block, warrant, rank, chapter and guide presence, marks, band, logged calls, Watkins counts, phase, style group | App. J Rule 7: "the membership file at the repository governs" |
 | `data/evidence_join_729.tsv` | 729 | the source forms each seat was matched on, Watkins's categorical split and graded years, Miller's Top 201 | § II, § VI.3 |
 | `data/vocal_band_worksheet_227.tsv` | 227 | source count per vocal title, the rank drop, the forty-two screening drops, the six compiler seats | the note under TABLE IV.6: "the band file at the repository" |
-| `data/style_classification.tsv` | 520 | provenance, idiom, rhythmic frame, form block and harmonic terrain for the 491 classified titles and the 29 set-rule entries | § VI, opening; § VI.2.c |
+| `data/style_classification.tsv` | 520 | provenance, idiom, rhythmic frame, form block and harmonic terrain for the 491 classified titles and the 29 set-rule entries, and a ballad column the volume does not carry | § VI, opening; § VI.2.c; the ballad column, none |
 | `data/style_contested_calls_12.tsv` | 12 | the idiom calls a second reader could file differently, with the argument for moving each | § VI.5.e |
 | `data/name_table.tsv` | 133 | FM.6's fifty-two names, the case and punctuation variants, and the nine chapter folds | FM.6; App. J Rule 6d |
 | `data/tier_pair_separation.tsv` | 12 | for each tier pair, the share of title-against-title comparisons the lower tier wins on the ranking, the log and the survey | TABLE II.6, TABLE II.7 |
