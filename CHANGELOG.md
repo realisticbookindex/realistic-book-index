@@ -2,6 +2,8 @@
 
 ## v15.0.1 - for Draft 15. v15.0.0 archived the Draft 10.3 files in error and v15.0.1 is the first release these notes describe.
 
+The v15.0.0 release archived the Draft 10.3 files in error, before these materials were committed. v15.0.1 is the first release these notes describe and the first whose prompt mirror matches the checksum printed at App. J Rule 13.
+
 This release replaces the files built for Draft 10.3. Every file is rebuilt against Draft 15 as the Draft 14 to Draft 15 checklist leaves it; none is carried forward unchanged.
 
 ### Figures

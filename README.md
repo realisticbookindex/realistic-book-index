@@ -6,7 +6,9 @@ This repository holds the files *The Realistic Book Index* (Draft 15) sends a re
 python3 code/verify.py
 ```
 
-The script runs 87 checks, prints one line for each, and exits 0 when all pass. It needs Python 3 and nothing else. Twelve of the checks rebuild a join rather than read a column: App. E is reconstructed from `sources/` back to the seated titles, Rule 9's ranking closure is recomputed from the ranking file and App. C, and the two data files are held against each other. A column cannot confirm itself, and those twelve are what a replicator's own run does.
+The script runs 89 checks, prints one line for each, and exits 0 when all pass. It needs Python 3 and nothing else. Twelve of the checks rebuild a join rather than read a column: App. E is reconstructed from `sources/` back to the seated titles, Rule 9's ranking closure is recomputed from the ranking file and App. C, and the two data files are held against each other. A column cannot confirm itself, and those twelve are what a replicator's own run does.
+
+**Two things to do first, if this is your first time.** On macOS, typing `python3` opens a dialog offering to install the developer tools; accept it, wait, and try again. On Windows, install Python from python.org and tick "Add python.exe to PATH" on the first screen. Nothing else is needed - no libraries, no accounts, no setup.
 
 ---
 
@@ -107,10 +109,23 @@ Every other join is declared in `code/aliases.py`. Three kinds are worth knowing
 App. J Rule 13 prints the J.13 prompt and states that it is mirrored here byte for byte, with the SHA-256 of the file. To confirm that the prompt in hand is the printed one:
 
 ```
-cd prompts && sha256sum -c SHA256SUMS
+cd prompts && sha256sum -c SHA256SUMS      # Linux
+cd prompts && shasum -a 256 -c SHA256SUMS  # macOS
 ```
 
+Either prints `rule_13_screening_prompt.txt: OK`. macOS ships `shasum` and not `sha256sum`, so the first command answers "command not found" there; it is the same check under a different name.
+
 The file is plain ASCII and ends in one newline. `.gitattributes` turns off line-ending conversion, so a clone on any platform checks the file out byte for byte; a copy saved through an editor or a browser can change its line endings and fail the check. Where this file and the printed page differ, the printed page governs, and the difference is a defect to be filed here (App. L.8). A model given the prompt is given the files J.13.b lists and a completed filter card at J.13.c, and nothing else.
+
+---
+
+## Two different asks, and what each costs
+
+**Checking this edition** takes about twenty minutes and costs nothing. Clone the repository, run the script above, run the checksum, and read `EXTRACTION.md` before pulling anything out of the printed volume. Everything needed is in this repository. No part of it requires agreeing with a single seating decision.
+
+**Producing a comparable run** is a term's work. It needs two books this repository cannot carry, a filter only you can declare, and a screen across 1,420 titles - fifty-seven batches at the twenty-five J.13.e sets. The volume is explicit that your total will not be 729 and should not be.
+
+**On the filter, which is where most people stop.** Rule 5 asks what you have observed being called, where, over what period, on what instrument, in what capacity. A short and narrow answer is a legitimate answer. Two years of student ensembles in one town, declared as exactly that, is a filter; it is a *different* filter from this edition's, which is the entire point. App. L says so in terms: a divergence between two declared filters "is a better object than this book." What is not legitimate is an undeclared filter, or one borrowed from here. The filter card at J.13.c has a line for known biases and a line for what the filter does not reach, and filling both honestly is what makes a thin filter usable rather than disqualifying.
 
 ---
 
@@ -134,6 +149,6 @@ The file is plain ASCII and ends in one newline. `.gitattributes` turns off line
 
 ## Release, citation and corrections
 
-This release is tagged `v15.0.1` and archived on Zenodo, which mints a version DOI for it. The tag and the DOI fill the two placeholders in the App. J Rule 13 note; cite the version DOI (see `CITATION.cff`). A correction to a count, a locator or a file is filed here as an issue and receives a dated, attributed record (App. L.8). An exception to a seat or to the filter is not a correction; App. L.3 states what one has to carry.
+This release is tagged `v15.0.0` and archived on Zenodo, which mints a version DOI for it. The tag and the DOI fill the two placeholders in the App. J Rule 13 note; cite the version DOI (see `CITATION.cff`). A correction to a count, a locator or a file is filed here as an issue and receives a dated, attributed record (App. L.8). An exception to a seat or to the filter is not a correction; App. L.3 states what one has to carry.
 
 The ranking, the survey, the log and the program documents are other people's work and are cited in full at `SOURCES.md`. The keyings under `sources/` and `panel/` are transcriptions made for this project; where a keying differs from its published source, the published source governs. Everything under `data/`, `residues/` and `code/` is this project's own work.
