@@ -1,351 +1,139 @@
-# The Realistic Book Index - replication data
+# The Realistic Book Index - replication materials, Draft 15
 
-Data and code sufficient to reproduce every figure in *The Realistic Book Index*, and to
-run the same process against a different pool and reach a different answer.
-
-The volume's argument is that a filtered repertoire list is only worth reading if its
-rejections are printed and its arithmetic closes. This repository is that claim in
-machine-readable form. **Every count in the book is re-derived here from the files in
-`data/`, `sources/` and `residues/`, and the script reports pass or fail.**
+This repository holds the files *The Realistic Book Index* (Draft 15) sends a reader to, and a script that recomputes the volume's figures from them. The volume's claim is that a filtered repertoire index is worth reading only if its rejections are printed and its arithmetic closes. The files here let a reader test that claim without the author, and run the same procedure against a different filter.
 
 ```
 python3 code/verify.py
 ```
 
-61 checks. Exit status 0 if all pass.
+The script runs 87 checks, prints one line for each, and exits 0 when all pass. It needs Python 3 and nothing else. Twelve of the checks rebuild a join rather than read a column: App. E is reconstructed from `sources/` back to the seated titles, Rule 9's ranking closure is recomputed from the ranking file and App. C, and the two data files are held against each other. A column cannot confirm itself, and those twelve are what a replicator's own run does.
 
 ---
 
-## What the Index is
+## Before you extract anything from the printed volume
 
-Three published sources form a candidate pool of **1,419** titles: a recording-frequency
-ranking of 1,000, Mark Levine's repertoire chapter (964 titles, 419 of them absent from the
-ranking), and Ted Gioia's critical survey (266, of which 265 resolve into the pool and none
-enters on Gioia alone).
+Read `EXTRACTION.md` first. It is short, and it is the record of ten ways a machine reported
+a defect in this volume that was not there. Three of them bite in the first ten minutes and
+two of those bite silently.
 
-A declared practitioner filter reduces that pool to **729** retained titles in five lists and
-two divisions, and declines **700**, every one of which is printed by name.
+**Every numbered entry carries a zero-width space between the marker and the title.** There
+are 4,209 of them. `^\d+\.\s+(.*)$` does not match. `^\d+\.\s*(.*)$` matches and
+captures U+200B into the title, which then joins to nothing while looking correct in a
+terminal. Strip U+200B, U+00A0 and U+2011 before matching anything.
 
-The total closes three ways, from columns not formed from each other:
+**The index pages set two and three columns, and a band's list runs on from one column into
+the next.** Ordering lines by vertical position interleaves them and destroys both the
+roster order and the band attribution. Cluster on the left edge, order the clusters left to
+right, and expect a list to continue across a cluster boundary.
+
+**Prove the extraction before trusting a finding from it.** The eight alphabetical runs hold
+93, 53, 116, 141, 99, 80, 78 and 69 titles. An extraction that does not return those six
+figures is not ready to be read for defects.
+
+Two further rules decide most of the rest. The `.docx` character stream is authoritative for
+what the text says; the render is authoritative for every generated number and for anything
+positional - a line break, a heading, a column. Neither is authoritative for whether two
+words have a space between them, which only the glyph geometry settles.
+
+---
+
+## The figures the checks recompute
+
+Three published sources form the pool: a recording-frequency ranking of 1,000 titles, Mark Levine's repertoire chapter (964 titles, 420 of them absent from the ranking), and Ted Gioia's *The Jazz Standards* (266 titles, 264 of which resolve into the pool). The pool is 1,420 titles. A declared practitioner filter retains 729 and declines 701, and every decline is printed by name.
 
 ```
-by warrant     537 + 182 + 0 + 10                    = 729
-by tier        93 + 53 + 116 + 141 + 99 + 227        = 729
-by division    502 + 227                             = 729
+by warrant    536 [W1] + 183 [W2] + 0 [W3] + 10 [W4]    = 729
+by tier       93 + 53 + 116 + 141 + 99 + 227            = 729
+by division   502 [D1] + 227 [T6]                        = 729   (a regrouping of the tiers)
 
-residues       537 + 463 = 1,000        182 + 237 = 419
+residues      536 + 464 = 1,000        183 + 237 = 420        declines 237 + 464 = 701
 ```
 
-Two practitioner instruments were opened **after** the Index closed and admit nothing:
-a 2010 survey of thirty-seven US educator-performers, and a log of 2,038 calls across 160
-London sessions from 2019. Both are in `sources/`.
+The first two lines are independent routes. The third sums the tiers into divisions and is printed as a regrouping, not as a third route.
+
+Two call instruments were opened after the Index closed and admit nothing: Mark Watkins's 2010 survey of thirty-seven educator-performers, and David Miller's log of 2,038 calls at London sessions from 2019. A fourteen-program collegiate panel was consulted the same way.
 
 ---
 
-## Layout
+## Layout, and the volume pointer each file answers
+
+| file | rows | what it is | the volume's pointer |
+|---|---|---|---|
+| `data/index_membership_729.tsv` | 729 | one row per seat: index, seat, title as printed, form block, warrant, rank, chapter and guide presence, marks, band, logged calls, Watkins counts, phase, style group | App. J Rule 7: "the membership file at the repository governs" |
+| `data/evidence_join_729.tsv` | 729 | the source forms each seat was matched on, Watkins's categorical split and graded years, Miller's Top 201 | § II, § VI.3 |
+| `data/vocal_band_worksheet_227.tsv` | 227 | source count per vocal title, the rank drop, the forty-two screening drops, the six compiler seats | the note under TABLE IV.6: "the band file at the repository" |
+| `data/style_classification.tsv` | 520 | provenance, idiom, rhythmic frame, form block and harmonic terrain for the 491 classified titles and the 29 set-rule entries | § VI, opening; § VI.2.c |
+| `data/style_contested_calls_12.tsv` | 12 | the idiom calls a second reader could file differently, with the argument for moving each | § VI.5.e |
+| `data/name_table.tsv` | 133 | FM.6's fifty-two names, the case and punctuation variants, and the nine chapter folds | FM.6; App. J Rule 6d |
+| `data/tier_pair_separation.tsv` | 12 | for each tier pair, the share of title-against-title comparisons the lower tier wins on the ranking, the log and the survey | TABLE II.6, TABLE II.7 |
+| `residues/appendix_A_levine_unique_420.tsv` | 420 | Levine's titles absent from the ranking, with the seat of the 183 retained | App. A |
+| `residues/appendix_B_levine_declined_237.tsv` | 237 | the chapter's declines | App. B |
+| `residues/appendix_C_ranking_declined_464.tsv` | 464 | the ranking's declines, with rank | App. C |
+| `residues/appendix_D_gioia_declined_6.tsv` | 6 | Gioia titles not retained (a cross-reference: all six also sit in App. C) | App. D |
+| `sources/jazzstandards_ranked_1000.tsv` | 1,000 | the ranking, in rank order | App. J Rule 13 note |
+| `sources/jazzstandards_ranked_1000_alphabetized.tsv` | 1,000 | the same list filed by FM.1.f, which is the form J.13.b supplies to a model | J.13.b |
+| `sources/watkins_2010_*.tsv` | 92 / 96 / 137 / 228 | List 1, List 2, the categorical listing with its survey split, the four-year graded sequence | § II.1, App. M.1 |
+| `sources/miller_*.tsv` | 308 / 201 | the call log as title and count, and the published Top 201 | § II.1, App. M.1 |
+| `panel/panel_sources_14.tsv` | 14 | institution, document, address, format, rows and titles as printed, retrieval date | TABLE IV.8.b, App. H, App. L.8 |
+| `panel/panel_rows_pooled.tsv` | 1,533 | every row of the fourteen documents as printed, with its normalized form | App. H: "the pooled row file" |
+| `panel/panel_union_k.tsv` | 460 | the union under the folding rules, with the number of programs (k) and the seat each title reaches | App. H: "the k-counts" |
+| `panel/FOLDING_RULES.md` | | the six folding rules and the reading decisions applied with them | App. H: "the folding rules" |
+| `prompts/rule_13_screening_prompt.txt` | | the J.13 screening prompt, byte for byte as printed | App. J Rule 13 note |
+| `prompts/SHA256SUMS` | | its checksum | App. J Rule 13 note |
+| `code/norm.py`, `code/aliases.py` | | title identity, and every join normalization cannot make | App. L.8: "the data files and the verification script" |
+| `code/panel.py` | | rebuilds the union, the k-counts and the reach table from the pooled rows | App. H |
+| `code/verify.py` | | the battery | App. L.8 |
+
+---
+
+## Title identity, which is where a replication diverges first
+
+`norm.identity()` removes performance keys and AKA parentheticals, strips diacritics, folds curly quotes and `&`, lower-cases, and keeps letters and digits. It keeps leading articles, because the volume files a title under its article. `norm.match_key()` removes a leading article for joining one source's spelling to another's, and nothing else. `norm.alphakey()` is the FM.1.f filing key.
+
+Every other join is declared in `code/aliases.py`. Three kinds are worth knowing before a first run:
+
+- **Folds normalization cannot derive.** *Black Orpheus* and *A Day in the Life of a Fool* are *Manha De Carnaval*; *Chega de Saudade* is *No More Blues*; *Budo* is *Hallucinations*; Miller's *My Secret Love* is *Secret Love*. The nine chapter folds used for the vocal band worksheet are listed there too, seven mechanical and two judgments (*In My Solitude*, *I've Grown Accustomed To Your Face*).
+- **Forms a source prints that `match_key` cannot reach.** A leading parenthetical is the case it misses most often: Miller's log prints *Weaver Of Dreams* for App. B's *(You're A) Weaver Of Dreams*, Watkins's categorical listing prints *Flintstones, The* for *(Meet) The Flintstones* and *Jodie Grind, The* for *The Jody Grind*, the ranking prints *Until I Met You (Corner Pocket)*, and Miller's 201 prints *Well You Needen't*. Sources are cited as printed (Index 3.1.d), so the fold is declared rather than the row corrected.
+- **Folds a replicator working from the books will need.** The chapter drops subtitles the ranking prints, so *Green Dolphin Street*, *Liza*, *Shaw*, *Who Cares?* and twenty-one others need a declared fold before the chapter joins to the ranking. Without them the chapter's unique count comes back 444 rather than the 420 at App. A. The chapter also carries one title twice, under *Amor Em Paz* and *Once I Loved*, so its 964 entries are 963 titles. Watkins's *No Blues (Pfrancing)* is the same case on this repository's own side.
+- **Joins that are refused.** Miller's *I Love You* is not *P.S. I Love You*. *Prancing* is not *Pfrancing*. The ranking's *Sugar (That Sugar Baby O' Mine)* is not the Turrentine *Sugar* seated at Index 2 #70. Levine's *Lonely Woman (Silver)* is not Gioia's Coleman composition. *The Theme* is not *52nd Street Theme*.
+- **One fold that is valid for a single source.** `aliases.BY_SOURCE` holds it. Levine's chapter carries Silver's *Lonely Woman*; Gioia and Watkins carry Coleman's, which TABLE R.4 puts outside the pool. A join that applies its folds without regard to which file it is reading will merge the two.
+- **One column that can go stale, and the check that stops it.** `data/name_table.tsv` carries a `seat` for each folded name, which is a convenience and a hazard: a seat number is the roster's to state, and a second copy of it drifts the moment a title moves. An earlier packet for this project carried the same column and 45 of its 124 rows went stale while every one of its mappings stayed correct. The mapping is durable; the address is not. `verify.py` now asserts that all 133 addresses agree with the roster, that no fold points at another fold's source, and that every fold target is a title the volume seats or prints in a residue.
+- **One collision, disclosed.** The Index seats the 1958 modal *Milestones* at Index 1A #33; the 1947 line is a separate composition, declined at App. B. Instruments that print one *Milestones* are not used to merge them.
+
+---
+
+## The screening prompt
+
+App. J Rule 13 prints the J.13 prompt and states that it is mirrored here byte for byte, with the SHA-256 of the file. To confirm that the prompt in hand is the printed one:
 
 ```
-data/         the Index and everything derived from it
-sources/      the source lists as keyed for this project
-residues/     the four printed residues - what the method rejected
-panel/        the fourteen collegiate programs, their URLs, and the pooled titles
-prompts/      the three prompts the method runs on, and the filter card you fill in
-csv/          the same tables as .csv, for double-clicking
-code/         normalization, the alias map, the sort convention, and the verification battery
-SOURCES.md    where every source came from and how to get it yourself
+cd prompts && sha256sum -c SHA256SUMS
 ```
 
-**Three formats, same data.** The `.tsv` files are canonical and are what `verify.py` reads;
-tab-separated because many of these titles contain commas. GitHub renders both `.tsv` and `.csv`
-as sortable tables in the browser, so nothing needs downloading to be read. If you want the files
-on your own machine, take the `csv/` copies, which open on a double-click anywhere, or the single
-`RBI_replication_data.xlsx` workbook, which carries every table as a named sheet and needs no
-delimiter or encoding decision from you.
-
-### `data/`
-
-| file | rows | what it is |
-|---|---|---|
-| `index_membership_729.tsv` | 729 | one row per seated title: tier, entry number, the scan mark as printed, the scan mark the stated rule returns, whether they agree, and the raw evidence columns |
-| `evidence_join_819.tsv` | 819 | the Index joined to both call instruments, **plus every title either instrument names that the Index does not carry**. `seat_d103` is `-` for those |
-| `tier_pair_separation.tsv` | 12 | for each pair of tiers, the share of title-against-title comparisons in which the lower tier comes out ahead, by each of three measures. Ties count as half, so 50 means the measure does not separate the two tiers |
-| `priority_list1.tsv` … `priority_lists4_5.tsv` | 146 / 91 / 38 / 30 | the practice-order pages: which titles any external measure reaches, and in what order |
-
-### `sources/`
-
-**Every file here presents alphabetically by title.** The ordering datum a source carries - a
-recording rank, a call count, a contributor count - travels as a column rather than as the
-sequence of the file, so no file in this directory reproduces the arrangement of the compilation
-it was keyed from. `code/alpha.py` states the convention, `code/verify.py` asserts it, and
-`SOURCES.md` says what that does and does not settle. Sorting a file on its datum column puts
-the source's order back, which is intended: the ranks are here because the volume's closing
-finding cannot be checked without them.
-
-### `sources/pool_1419_alphabetical.tsv`
-
-**Two versions of the pool ship here, and which one you take matters.**
-`sources/pool_1419_candidates.tsv` is the 1,419 titles and nothing else - no disposition column,
-so it does not tell a screener what this edition decided. **That is the one to screen from.** The
-file described next carries the answers and is for comparing afterward.
-
-`sources/pool_1419_alphabetical.tsv` is the candidate pool: all 1,419 titles in one
-alphabetical sequence with each title's disposition, retained to a list or declined. It is a
-merge of three sources rather than a reproduction of any one of them, it carries no column
-saying which source a title came from, and the arrangement is mechanical. It is the file a
-replicator needs in order to run the screening step without first acquiring all three sources.
-It closes independently: 719 retained and 700 declined, which is A6 and A5.
-
-### `residues/`
-
-The four appendices of rejected titles, which are the part of the method most worth
-attacking and are therefore printed in full.
-
-| file | rows |
-|---|---|
-| `appendix_A_levine_unique_419.tsv` | 419 Levine titles absent from the ranking, the set assessed |
-| `appendix_B_levine_declined_237.tsv` | 237 of those declined |
-| `appendix_C_ranking_declined_463.tsv` | 463 ranked titles declined |
-| `appendix_D_gioia_declined_6.tsv` | 6 Gioia titles not retained |
-
-`B + C = 700`, the declined total. Appendix D is a cross-reference: all six also appear in
-Appendix C, so adding D again double-counts.
-
-`residues/all_700_declined.tsv` is all of them in one alphabetical sequence, with which
-appendix each came from, its rank where it has one, and whether either call instrument
-reaches it. **464 of the 700 carry a recording rank, 21 appear in the London log, and 8 carry
-any reference in the survey.** This is the file to search when you want to know why a
-particular title is not in the Index.
-
-### `prompts/`
-
-**The data lets you check this edition. The prompts let you build your own.** Three, in the order
-they run: the screening prompt that seats titles, the skill-path prompt that assigns practice
-phases, and the listening prompt that returns recordings stage by stage. Plus
-`filter_card_TEMPLATE.md`, which is the one part of the method a replicator has to write.
-
-Start at `prompts/README.md`. It carries the running order, what to attach at each step, the four
-printed defects reproduced rather than repaired, and the reason not to close your arithmetic to
-this edition's 729.
-
-### Three files handle title variance, and they are not interchangeable
-
-Two lists of jazz standards disagree about punctuation, articles, alternate names and spelling
-before they disagree about anything that matters. Three files here address that, each answering a
-different question.
-
-| file | question it answers | scope |
-|---|---|---|
-| `code/aliases.py` | *what does the code fold together?* | 27 folds, the operative map every join in this repository applies |
-| `sources/title_anomalies.tsv` | *why did the join behave that way?* | 453 rows, 200 compositions - every hazard across every source, **including the ones that did not resolve** |
-| `sources/title_alias_index.tsv` | *where does this name land?* | 124 rows, 84 compositions - name to seat, seated titles only |
-
-**The register is the audit trail and the index is the finding aid.** The register carries what
-the index cannot: 8 refused joins, which are pairs that look alike and are *not* the same
-composition; 3 cases of one name over two works; 3 source defects; 4 extraction hazards. Putting
-a refused join in an alias index would assert the opposite of what the register found. It also
-covers the 44 rows that concern declined or source-only titles, which have no seat to point at.
-
-`verify.py` asserts the index is derived from the register, that every row lands on a real seat,
-and that no refused join appears in it.
-
-### `code/build_queue.py` - the mechanical half, run in one command
-
-```
-python3 code/build_queue.py     ->  data/decision_queue_1419.tsv
-```
-
-**1,419 candidates, every machine-derivable fact attached, and no verdict on any of them.**
-Recording rank, chapter presence, both call instruments, the graded-series floor, what the
-collegiate panel reaches, and the scan mark the stated rule returns. Four columns are left empty
-because they are not derivable: `verdict`, `division`, `tier`, `ground_if_declined`.
-
-**This is where automation stops, and the reason is the volume's whole argument.** Every one of
-the 1,419 carries a source warrant, because the pool *is* the union of the three warrant sources.
-Warrant checking therefore declines no one. **The reduction from 1,419 to a seated Index is the
-practitioner filter doing all of it**, and the filter is one player's observation of call
-likelihood - the step Rule 5 says cannot be inherited.
-
-What that buys a replicator is the whole clerical burden, gone. What it cannot buy is a single
-decline.
-
-**856 of the 1,419 carry no external evidence of any kind** - no survey mention, no logged call,
-no graded series, no collegiate list. On those, the filter is not one signal among several. It is
-the only one.
-
-### The skill path, and how to rebuild it from scratch
-
-Rule 13B assigns practice phases against a floor of graded pedagogical series. Two files carry
-that floor, so a replicator can run the phase pass without owning seventeen books.
-
-| file | rows | what it is |
-|---|---|---|
-| `sources/graded_series_volumes_27.tsv` | 27 | every volume: publisher, work, volume, title count, the band this edition assigned it, and its ISBN or catalogue number |
-| `sources/graded_series_552.tsv` | 552 | every title in every one of those volumes, with the seat it lands on in this Index, or `declined`, or `outside` |
-
-**453 distinct compositions.** 170 are seated here, 34 were declined and print at a residue, and
-249 never entered the pool at all. That last figure is the one to read carefully: a graded series
-teaches ensemble literature and educational originals alongside standards, and this Index counts
-what gets called. **The two populations overlap on the standards and diverge everywhere else, and
-the divergence is the measurement rather than a miss.**
-
-Per-volume reach runs from 94 percent (Hal Leonard *Easy Jazz Play-Along* vol 2) to zero (Sher
-*Latin Real Easy Book* Part 2). **A play-along teaches the repertoire; a school ensemble method
-teaches the ensemble.** The two ends of that range are two different kinds of book.
-
-**None of this grants a warrant.** TABLE V.2 in the volume says so and Rule 13B repeats it: these
-sources inform the stratification and admit no title.
-
-### `panel/`
-
-Fourteen degree-granting jazz programs that publish a required or expected repertoire list,
-retrieved on one day, 26 August 2026. The panel was consulted after the Index closed. **It
-admitted no title.**
-
-| file | rows |
-|---|---|
-| `collegiate_panel_sources.tsv` | the fourteen programs, with the document, its URL, format, printed row and title counts, and any folding note |
-| `collegiate_panel_union.tsv` | 486 pooled titles, each with how many programs carry it, the numbered Index entry it lands on, which programs list it, and every printed form |
-
-The fourteen URLs are live documents and several will have changed. **Re-retrieve and re-date
-rather than inheriting this snapshot.**
-
-`index_entry` names a seat, not a string. Two panel titles can land on one seat, which is how a
-line count can exceed the size of the tier it is counting into. `panel/README.md` carries the
-scope reconciliation, the reason this file returns 486 where the volume prints 462, and the four
-statements that survive every count in that band.
+The file is plain ASCII and ends in one newline. `.gitattributes` turns off line-ending conversion, so a clone on any platform checks the file out byte for byte; a copy saved through an editor or a browser can change its line endings and fail the check. Where this file and the printed page differ, the printed page governs, and the difference is a defect to be filed here (App. L.8). A model given the prompt is given the files J.13.b lists and a completed filter card at J.13.c, and nothing else.
 
 ---
 
-## The join rules, which is where a replication will diverge first
+## Running the procedure yourself
 
-Title matching is the whole problem. Two lists of jazz standards will disagree on
-punctuation, articles, alternate titles and spelling before they disagree on anything that
-matters. `code/norm.py` is the normalizer used throughout and `code/aliases.py` is the
-complete fold list.
-
-`norm.base()` strips bracketed marks and parentheticals, folds curly quotes, strips
-diacritics, moves a trailing article to the front (`Theme, The` → `The Theme`), expands `&`,
-`Mr.` and `St.`, drops a leading article, and reduces to lowercase alphanumerics.
-`norm.full()` is the same but keeps what is inside the parentheses, so that
-`Milestones (old)` and `Milestones (new)` stay distinct.
-
-`sources/title_anomalies.tsv` is the register of everything that can go wrong here, in one
-machine-readable file. 453 rows, six classes, and a `resolved_by` column saying whether your
-normalizer already handles a case or whether you have to hard-code it.
-
-| class | rows | what it is |
-|---|---|---|
-| `variant form` | 409 | **187 compositions are printed more than one way across the sources.** Each printed form gets a row against the key it folds to |
-| `declared fold` | 26 | the alias map, as data |
-| `refused join` | 8 | pairs close enough that a fuzzy matcher takes them, and must not |
-| `extraction hazard` | 4 | long AKA parentheticals that wrap across printed columns and truncate silently |
-| `one name, two works` | 3 | *Milestones*, and the unresolved *The Theme* |
-| `source defect` | 3 | counts a published source prints below its own stated floor |
-
-Of the 409 variant forms, **380 resolve by normalization alone and 28 do not.** Those 28 are the
-ones that will silently cost you titles: *Black Orpheus* against *Manha De Carnaval*, *Wee* against
-*Allen's Alley*, *Chega De Saudade* against *No More Blues*, *Unit 7* against *Unit Seven*, *Take 5*
-against *Take Five*, *In A Mellow Tone* against *In a Mellotone*, *Georgia* against *Georgia on My
-Mind*. Sort the file by `resolved_by` and the hard cases come to the top.
-
-**Twenty-five folds cannot be derived and are declared** in `aliases.py` - among them
-`Black Orpheus` → `Manha De Carnaval`, `Wee` → `Allen's Alley`, `No Blues` → `Pfrancing`,
-`Chega de Saudade` → `No More Blues`, and `My Secret Love` → `Secret Love`. A replicator who
-does not apply these will not reproduce the counts, and the difference is not small.
-
-**One join must be refused:** Miller's `I Love You` is not the log's `P.S. I Love You`, and a
-fuzzy matcher will take it.
-
-**One collision is disclosed rather than resolved:** this Index holds the 1947 bebop line and
-the 1958 modal composition as two titles both named *Milestones*. Watkins prints his entry as
-*Milestones (new)*, so one instrument makes the same distinction and the other does not. The
-verification script reports this as the single case where a printed decline shares a key with
-a seated title.
+1. Build a pool from the sources at `SOURCES.md`. Substitutions are permitted and are declared.
+2. Complete the filter card at J.13.c: settings, scene, period, instrument and vantage, known biases, and what the filter does not reach. This is the step no one can inherit.
+3. Screen in batches, record a ground for every decline, and print the residue.
+4. Close the arithmetic by at least two independent routes against your own total. **Do not close to 729.** App. J states that a run landing on this edition's total has adopted this edition's declarations in place of its own.
+5. If you open the call instruments, open them after seating. They admit nothing; what they report is agreement or divergence.
 
 ---
 
-## Reproducing the headline figures
+## What is not here, and why
 
-Each of these is a check in `code/verify.py` and can be recomputed by hand from the files.
-
-| figure | where it comes from |
-|---|---|
-| List 1A is 12.8% of the Index and absorbs **58.4%** of 2,038 logged calls | `evidence_join_819.tsv`, sum `miller_calls` by `seat_d103` |
-| **All 92** titles on Watkins's first list are seated; 83 in List 1 | `watkins_2010_list1_92.tsv` joined to the membership file |
-| **All 92** also appear on Miller's published Top 201 - nine years, two countries, no citation between them | `watkins_2010_list1_92.tsv` and `miller_published_201.tsv` |
-| Watkins's four-year sequence carries 193 distinct titles; **every one is in the Index** | `watkins_2010_graded_228.tsv` |
-| Of 699 testable declines, **21** appear in the log carrying **56 of 2,038** calls, and **none** sits on a Watkins printed list | residues joined to the log |
-| **No title in the ranking's top 100 is declined**; nine in the top 200 are, the first at rank 142 | `jazzstandards_ranked_1000.tsv` and the residues |
-| Recording rank cannot resolve the 1A / 1B line (**47.6%**) and reverses at the vocal division (**56.0%**) | `tier_pair_separation.tsv` |
+- **Levine's chapter and Gioia's list.** They are books. The chapter's 420 titles absent from the ranking are printed at App. A and are here, because that set is this project's derivation; the full 964 and Gioia's 266 have to be taken from the books cited at `SOURCES.md`.
+- **The fourteen program documents.** Their addresses and retrieval dates are here, with every row as printed. A replication should retrieve and date the documents again rather than inherit a snapshot.
+- **Model transcripts.** No count in the volume originates with a model (App. J Rule 2), and none is published as evidence here.
 
 ---
 
-## Running the process yourself
+## Release, citation and corrections
 
-The point of publishing this is not that you should agree with the result. It is that the
-method can be re-run.
+This release is tagged `v15.0.0` and archived on Zenodo, which mints a version DOI for it. The tag and the DOI fill the two placeholders in the App. J Rule 13 note; cite the version DOI (see `CITATION.cff`). A correction to a count, a locator or a file is filed here as an issue and receives a dated, attributed record (App. L.8). An exception to a seat or to the filter is not a correction; App. L.3 states what one has to carry.
 
-1. Build your own pool from `SOURCES.md`. Substitutions are permitted and should be declared.
-2. Write your own practitioner filter: the settings, scenes, period and instrument your
-   call-likelihood judgments are drawn from. This step is unverifiable by construction, in
-   this volume and in yours. Declaring it does not make it verifiable; it makes it legible.
-3. Screen the pool. Print your residue in full.
-4. Close your arithmetic by at least two independent routes. **Do not close to 729.** A run
-   that lands on this edition's total has adopted this edition's declarations in place of its
-   own, which makes it a weaker run and not a confirmation.
-5. Run the two call instruments against your result afterward. They admit nothing. What they
-   report is agreement or divergence, and divergence is the more interesting result.
-
----
-
-## What this repository does not contain
-
-Levine's chapter 21 and Gioia's survey are books. Their title lists are not reproduced here.
-`residues/appendix_A_levine_unique_419.tsv` carries the 419 Levine titles absent from the
-ranking, because that set is this project's own derivation and is printed in the volume, but
-the full 964 is not here and has to be taken from the book. `SOURCES.md` gives the ISBN, the
-page range and the extraction method.
-
-The fourteen collegiate documents are not here either, though their pooled titles are, at
-`panel/`. They were retrieved on one day in 2026 from live web pages and PDFs, and a replication
-should re-retrieve and re-date rather than inherit a snapshot.
-
-**The graded pedagogical series are treated the other way, and the difference is deliberate.**
-Their contents are published in full at `sources/graded_series_552.tsv`, because a print edition
-with an ISBN does not change between retrievals: a replicator can buy any of the 27 volumes and
-check the transcription line by line, which is what `sources/graded_series_volumes_27.tsv` exists
-to make possible. A collegiate program's web page offers no such fixed thing to check against.
-**Snapshot a living document and you have a claim about one day; transcribe a fixed edition and
-you have a claim anyone can audit.**
-
-Appendix G, the contrafact corpus, is the volume's own apparatus rather than a source and is not
-published here. Stage 4 of the listening prompt is unavailable without it, and that prompt is
-written to say so rather than to guess.
-
----
-
-## License
-
-Three different things live here and they are licensed three different ways, because only two
-of them are this project's to license.
-
-| | license |
-|---|---|
-| the code in `code/` | MIT - see `LICENSE` |
-| the data this project produced: `data/`, `residues/`, `csv/`, the workbook, the pool and the anomaly register | CC BY 4.0 - see `LICENSE-DATA` |
-| the transcribed source lists in `sources/` | not licensed here; attributed in `SOURCES.md`, take them from the source |
-
-Attribution is the only condition on the data. Use it, change it, publish a different answer
-from it - that is what it is for. Say where it came from.
-
-## Attribution
-
-The ranking, the survey and the call log are other people's work and are cited in full at
-`SOURCES.md`. The keyings in `sources/` are transcriptions made for this project; where a
-count in one of them differs from the published source, **the published source governs** and
-the difference should be reported. Two known instances are documented in `SOURCES.md`.
-
-Everything in `data/`, `residues/` and `code/` is the work of this project.
-
-Corrections that reach the author before a later edition will be recorded with attribution to
-whoever found them.
+The ranking, the survey, the log and the program documents are other people's work and are cited in full at `SOURCES.md`. The keyings under `sources/` and `panel/` are transcriptions made for this project; where a keying differs from its published source, the published source governs. Everything under `data/`, `residues/` and `code/` is this project's own work.

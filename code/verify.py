@@ -1,321 +1,338 @@
 #!/usr/bin/env python3
+"""Verification battery for The Realistic Book Index, Draft 15.
+
+    python3 code/verify.py
+
+Every check recomputes a figure the volume prints from the files in this repository
+and compares it with the printed value. The script prints one line per check and
+exits 0 when every check passes, 1 otherwise. It reads nothing outside the repository
+and needs only the Python standard library.
 """
-The Realistic Book Index - verification battery.
+import csv, collections, hashlib, os, sys
 
-Re-derives every headline figure in the volume from the files in this repository
-and reports pass or fail. Nothing here reads the book; if a figure in the book
-disagrees with this script, the script is the thing to check first and the book
-second, and both are meant to be checkable against the sources named in SOURCES.md.
-
-Usage:  python3 code/verify.py          (run from the repository root)
-Exit status 0 if every check passes, 1 otherwise.
-"""
-import csv, os, sys, collections, re
-sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from norm import base, full
-from aliases import ALIAS
-from alpha import in_alpha_order
-
-ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-def T(p):
-    with open(os.path.join(ROOT, p), newline='', encoding='utf-8') as f:
-        return list(csv.DictReader(f, delimiter='\t'))
-I = lambda v: int(v) if v not in ('', None) else 0
-ON201 = lambda r: r.get('miller_band','') in ('Top 10','Top 25','Top 201')
+HERE = os.path.dirname(os.path.abspath(__file__))
+ROOT = os.path.dirname(HERE)
+sys.path.insert(0, HERE)
+from norm import match_key, alphakey  # noqa: E402
+import panel  # noqa: E402
 
 RESULTS = []
+
+
 def check(name, got, want):
     ok = got == want
-    RESULTS.append((ok, name, got, want))
-    return ok
+    RESULTS.append(ok)
+    print(("PASS " if ok else "FAIL ") + name + ("" if ok else f"  got {got!r}, printed {want!r}"))
 
-def K(t):
-    b = base(t)
-    return ALIAS.get(b, b)
 
-# ---------------------------------------------------------------- load
-idx   = T('data/index_membership_729.tsv')
-ev    = T('data/evidence_join_819.tsv')
-js    = T('sources/jazzstandards_ranked_1000.tsv')
-w1    = T('sources/watkins_2010_list1_92.tsv')
-w2    = T('sources/watkins_2010_list2_96.tsv')
-wcat  = T('sources/watkins_2010_categorical_137.tsv')
-wgrad = T('sources/watkins_2010_graded_228.tsv')
-mlog  = T('sources/miller_london_calls_308.tsv')
-m201  = T('sources/miller_published_201.tsv')
-resA  = T('residues/appendix_A_levine_unique_419.tsv')
-resB  = T('residues/appendix_B_levine_declined_237.tsv')
-resC  = T('residues/appendix_C_ranking_declined_463.tsv')
-resD  = T('residues/appendix_D_gioia_declined_6.tsv')
+def read(rel):
+    with open(os.path.join(ROOT, rel), newline="") as f:
+        return list(csv.DictReader(f, delimiter="\t"))
 
-seat = collections.Counter(r['seat'] for r in idx)
-TIERS = ['1A','1B','2','3','4','5A','5B','5C']
 
-print("=" * 66)
-print("SOURCE COUNTS")
-print("=" * 66)
-check("ranked source is 1,000 titles",              len(js), 1000)
-check("ranks run 1..1000 with no gaps",             sorted(int(r['rank']) for r in js), list(range(1,1001)))
-check("Watkins List 1 is 92 titles",                len(w1), 92)
-check("Watkins List 2 is 96 titles",                len(w2), 96)
-check("Watkins categorical listing is 137 rows",    len(wcat), 137)
-check("Watkins graded sequence is 228 entries",     len(wgrad), 228)
-check("Watkins graded resolves to 193 titles",      len({K(r['title']) for r in wgrad}), 193)
-check("Miller log is 308 titles",                   len(mlog), 308)
-check("Miller log sums to 2,038 calls",             sum(I(r['calls']) for r in mlog), 2038)
-check("Miller published list is 201 titles",        len(m201), 201)
+IDX = ["1A", "1B", "2", "3", "4", "5A", "5B", "5C"]
+M = read("data/index_membership_729.tsv")
+by_idx = collections.defaultdict(list)
+for x in M:
+    by_idx[x["index"]].append(x)
 
-print()
-print("=" * 66)
-print("RULE 9 - THE ARITHMETIC CLOSES THREE WAYS")
-print("=" * 66)
-check("N, the Index, is 729 titles",                len(idx), 729)
-check("Route 2, by tier: 93+53+116+141+99+227",     sum(seat[t] for t in TIERS), 729)
-for t, want in zip(TIERS, [93,53,116,141,99,80,78,69]):
-    check(f"  tier {t} counts {want}",              seat[t], want)
-check("D1 instrumental division is 502",            sum(seat[t] for t in ['1A','1B','2','3','4']), 502)
-check("D2 vocal division is 227",                   sum(seat[t] for t in ['5A','5B','5C']), 227)
-check("Route 3, by division: 502 + 227",            502 + 227, 729)
-check("Appendix A prints 419 Levine-unique",        len(resA), 419)
-check("Appendix B prints 237 declined",             len(resB), 237)
-check("Appendix C prints 463 declined",             len(resC), 463)
-check("Appendix D prints 6 Gioia declines",         len(resD), 6)
-check("residues close: 537 retained + 463 = 1,000", (1000-len(resC)) + len(resC), 1000)
-check("residues close: 182 retained + 237 = 419",   (419-len(resB)) + len(resB), 419)
-check("Route 1, by warrant: 537 + 182 + 0 + 10",    537 + 182 + 0 + 10, 729)
-check("declined and printed in full is 700",        len(resB) + len(resC), 700)
-allD = T('residues/all_700_declined.tsv')
-check("the combined decline file holds 700",         len(allD), 700)
-check("  237 of them came from the chapter",         sum(1 for r in allD if r['appendix'] == 'B'), 237)
-check("  463 of them came from the ranking",         sum(1 for r in allD if r['appendix'] == 'C'), 463)
-check("  all 6 Appendix D titles are cross-marked",  sum(1 for r in allD if r['also_in_appendix_D']), 6)
-check("  21 of the 700 appear in the log",           sum(1 for r in allD if r['miller_calls']), 21)
+# ---------------------------------------------------------------- the Index (TABLE I.2, TABLE R.4)
+check("N = 729 [A4]", len(M), 729)
+check("tier sizes T1..T6 (93, 53, 116, 141, 99, 227)",
+      [len(by_idx[i]) for i in ["1A", "1B", "2", "3", "4"]] + [len(by_idx["5A"]) + len(by_idx["5B"]) + len(by_idx["5C"])],
+      [93, 53, 116, 141, 99, 227])
+check("vocal bands T6a/T6b/T6c (80, 78, 69)", [len(by_idx[i]) for i in ["5A", "5B", "5C"]], [80, 78, 69])
+check("D1 instrumental division = 502", sum(len(by_idx[i]) for i in ["1A", "1B", "2", "3", "4"]), 502)
+w = collections.Counter(x["warrant"] for x in M)
+check("Route 1: 536 [W1] + 183 [W2] + 0 [W3] + 10 [W4]",
+      (w["1 ranking"], w["2 chapter"], w.get("3 guide", 0), w["4 filter"]), (536, 183, 0, 10))
+check("A9 retained titles with no rank = 193", sum(1 for x in M if not x["rank"]), 193)
+check("the [P] set is the warrant-4 set (TABLE IV.4)",
+      sorted((x["index"], x["seat"]) for x in M if x["mark"] == "[P]"),
+      sorted((x["index"], x["seat"]) for x in M if x["warrant"] == "4 filter"))
+check("[P] by index: Index 2 two, Index 3 five, Index 4 three",
+      dict(collections.Counter(x["index"] for x in M if x["mark"] == "[P]")), {"2": 2, "3": 5, "4": 3})
+for i in IDX:
+    seats = sorted(int(x["seat"]) for x in by_idx[i])
+    check(f"Index {i}: seats run 1 to {len(seats)} without a gap", seats, list(range(1, len(seats) + 1)))
+bad = []
+for i in IDX:
+    blocks = collections.defaultdict(list)
+    for x in by_idx[i]:
+        blocks[x["block"]].append(x)
+    for b, v in blocks.items():
+        v.sort(key=lambda x: int(x["seat"]))
+        keys = [alphakey(x["title"]) for x in v]
+        bad += [(i, b, v[k]["title"], v[k + 1]["title"]) for k in range(len(v) - 1) if keys[k] > keys[k + 1]]
+check("every run and form block files by FM.1.f", bad, [])
+blk = {i: [sum(1 for x in by_idx[i] if x["block"] == b) for b in ["main", "twelve-bar blues", "minor blues", "rhythm changes"]]
+       for i in ["1A", "1B", "2", "3"]}
+check("form blocks at § VI.5.f (1A 68/16/3/6, 1B 52/0/1/0, 2 91/16/2/7, 3 89/28/8/16)", blk,
+      {"1A": [68, 16, 3, 6], "1B": [52, 0, 1, 0], "2": [91, 16, 2, 7], "3": [89, 28, 8, 16]})
+check("italic counts M7..M10 (43, 38, 13, 0)",
+      [sum(1 for x in by_idx[i] if x["italic"]) for i in ["1A", "1B", "2", "3"]], [43, 38, 13, 0])
+check("boldface titles = 36", sum(1 for x in M if x["bold"]), 36)
+check("italic only at Indexes 1 to 3, bold only at Index 5",
+      (sorted({x["index"] for x in M if x["italic"]}), sorted({x["index"] for x in M if x["bold"]})),
+      (["1A", "1B", "2"], ["5A", "5B", "5C"]))
 
-pool = T('sources/pool_1419_alphabetical.tsv')
-check("the pool is 1,419 titles",                   len(pool), 1419)
-check("  719 of them are retained (A6)",            sum(1 for r in pool if r['disposition'] != 'declined'), 719)
-check("  700 of them are declined (A5)",            sum(1 for r in pool if r['disposition'] == 'declined'), 700)
-check("  the pool is sorted and carries no source column",
-      sorted(pool[0].keys()), ['disposition', 'title'])
-check("  the 10 [P] titles are outside the pool",   729 - 719, 10)
+# ---------------------------------------------------------------- bands (TABLE VI.3.b)
+def untouched_ground(x):
+    if x["rank"]:
+        return "rank"
+    if x["block"] != "main" and x["index"] in ("2", "3"):
+        return "reservation"
+    return "nothing"
 
-print()
-print("=" * 66)
-print("RULE 9 - NO TITLE IN TWO PLACES")
-print("=" * 66)
-seated = set()
-for r in idx:
-    seated.add(base(r['title_as_printed'])); seated.add(full(r['title_as_printed']))
-check("no duplicate seat in the Index",             len({(r['seat'], r['entry_no']) for r in idx}), 729)
-check("Appendices B and C share no title",
-      len({K(r['title']) for r in resB} & {K(r['title']) for r in resC}), 0)
-collide = [r['title'] for r in resB + resC if K(r['title']) in seated]
-check("no printed decline is also seated",          collide, ['Milestones (old)'])
-print("      note: Milestones is held as two compositions under one name and is")
-print("      disclosed in the volume rather than resolved silently. It is the only one.")
 
-print()
-print("=" * 66)
-print("TITLE MATCHING - THE ANOMALY REGISTER")
-print("=" * 66)
-anom = T('sources/title_anomalies.tsv')
-byclass = collections.Counter(r['anomaly_class'] for r in anom)
-byres   = collections.Counter(r['resolved_by'] for r in anom)
-check("the anomaly register lists 453 rows",         len(anom), 453)
-check("  187 compositions print more than one way",
-      len({r['match_key'] for r in anom if r['anomaly_class'] == 'variant form'}), 187)
-check("  8 joins are marked DO NOT FOLD",            byclass['refused join'], 8)
-check("  no refused join appears in the alias map",
-      sum(1 for r in anom if r['disposition'] == 'DO NOT FOLD'
-          and any(k in ALIAS for k in r['match_key'].split(' | '))), 0)
-check("  every declared fold in the map is registered",
-      byclass['declared fold'], len([k for k, v in ALIAS.items() if k != v]))
-print(f"      resolved by normalization {byres['normalization']}, "
-      f"by a declared fold {byres['declared fold']}, "
-      f"by AKA parsing {byres['AKA parsing']}, by hand {byres['manual']}")
+table = {}
+for i in IDX:
+    b = collections.Counter(x["band"] for x in by_idx[i])
+    u = collections.Counter(untouched_ground(x) for x in by_idx[i] if x["band"] == "Untouched")
+    table[i] = [b["Reconciled"], b["Logged"], b["Distilled"], b["Sub-Floor"], u["rank"], u["reservation"], u["nothing"]]
+PRINTED_VI3B = {"1A": [79, 7, 5, 2, 0, 0, 0], "1B": [36, 3, 14, 0, 0, 0, 0], "2": [14, 31, 10, 16, 29, 4, 12],
+                "3": [0, 19, 1, 18, 12, 25, 66], "4": [5, 8, 2, 7, 73, 0, 4], "5A": [10, 23, 8, 1, 38, 0, 0],
+                "5B": [1, 9, 3, 0, 65, 0, 0], "5C": [0, 11, 0, 0, 56, 0, 2]}
+for i in IDX:
+    check(f"TABLE VI.3.b row {i}", table[i], PRINTED_VI3B[i])
+check("TABLE VI.3.b total row (145, 111, 43, 44, 273, 29, 84)",
+      [sum(table[i][k] for i in IDX) for k in range(7)], [145, 111, 43, 44, 273, 29, 84])
 
-print()
-print("=" * 66)
-print("THE TWO CALL INSTRUMENTS, RUN AGAINST THE SEATED INDEX")
-print("=" * 66)
-byseat = collections.defaultdict(list)
-for r in ev:
-    if r['seat_d103'] != '-': byseat[r['seat_d103']].append(r)
-calls = {t: sum(I(r['miller_calls']) for r in byseat[t]) for t in TIERS}
-check("List 1A absorbs 1,190 logged calls",         calls['1A'], 1190)
-check("List 1A share of 2,038 is 58.4 percent",     round(100*calls['1A']/2038, 1), 58.4)
-check("List 1 combined absorbs 68.3 percent",       round(100*(calls['1A']+calls['1B'])/2038, 1), 68.3)
-w1seat = [r for r in ev if I(r['watkins_list1'])]
-check("all 92 Watkins List 1 titles are seated",    len(w1seat), 92)
-check("  83 of them sit in List 1",                 sum(1 for r in w1seat if r['seat_d103'] in ('1A','1B')), 83)
-check("  all 92 appear on Miller's published 201",  sum(1 for r in w1seat if ON201(r)), 92)
-check("  17 at >=20 contributors, all in List 1A",
-      sum(1 for r in w1seat if I(r['watkins_list1'])>=20 and r['seat_d103']=='1A'), 17)
-g = [r for r in ev if r['watkins_grade_years'] and r['seat_d103'] != '-']
-check("Watkins graded sequence: 193 titles seated", len(g), 193)
-check("  none of the 193 falls outside the Index",
-      sum(1 for r in ev if r['watkins_grade_years'] and r['seat_d103']=='-'), 0)
-check("  134 of the 193 sit in List 1",             sum(1 for r in g if r['seat_d103'] in ('1A','1B')), 134)
-check("Miller Top 201: 88 of the 93 in List 1A",    sum(1 for r in byseat['1A'] if ON201(r)), 88)
-check("Miller Top 201: 50 of the 53 in List 1B",    sum(1 for r in byseat['1B'] if ON201(r)), 50)
-check("Miller Top 201: 25 of the 116 in List 2",    sum(1 for r in byseat['2'] if ON201(r)), 25)
-check("Miller Top 201: 1 of the 141 in List 3",     sum(1 for r in byseat['3'] if ON201(r)), 1)
 
-print()
-print("=" * 66)
-print("THE DECLINES, TESTED AGAINST BOTH INSTRUMENTS")
-print("=" * 66)
-out = {r['key']: r for r in ev if r['seat_d103'] == '-'}
-hits = []
-for r in resB + resC:
-    k = K(r['title'])
-    if k in seated: continue                      # the Milestones collision, disclosed above
-    o = out.get(k)
-    if o and (I(o['miller_calls']) or ON201(o) or o['watkins_band']): hits.append(o)
-check("699 declines are testable",                  700 - 1, 699)
-check("  21 appear anywhere in the Miller log",     sum(1 for h in hits if I(h['miller_calls'])), 21)
-check("  they carry 56 of 2,038 calls",             sum(I(h['miller_calls']) for h in hits), 56)
-check("  none sits on a Watkins printed list",
-      sum(1 for h in hits if h['watkins_band'].startswith('List')), 0)
+def band_of(x):
+    listed = bool(x["watkins_list1_count"] or x["watkins_list2_count"])
+    calls = int(x["logged_calls"])
+    if calls and listed:
+        return "Reconciled"
+    if calls:
+        return "Logged"
+    if listed:
+        return "Distilled"
+    if x["watkins_categorical"]:
+        return "Sub-Floor"
+    return "Untouched"
 
-print()
-print("=" * 66)
-print("NO SOURCE FILE REPRODUCES ITS SOURCE'S ARRANGEMENT")
-print("=" * 66)
-for _f, _c in [('sources/jazzstandards_ranked_1000.tsv',    'title_as_ranked'),
-               ('sources/miller_london_calls_308.tsv',      'title_as_logged'),
-               ('sources/watkins_2010_list1_92.tsv',        'title'),
-               ('sources/watkins_2010_list2_96.tsv',        'title'),
-               ('sources/watkins_2010_categorical_137.tsv', 'title'),
-               ('sources/pool_1419_alphabetical.tsv',       'title')]:
-    check(f"  {_f.split('/')[-1]} is alphabetical",
-          in_alpha_order([r[_c] for r in T(_f)]), True)
-from aliases import HOMONYMS
-_pool_keys = {}
-for _r in T('sources/pool_1419_candidates.tsv'):
-    _k = base(_r['title']); _k = ALIAS.get(_k, _k)
-    _pool_keys.setdefault(_k, []).append(_r['title'])
-check("only a declared homonym collides in the pool",
-      {k for k, v in _pool_keys.items() if len(v) > 1}, HOMONYMS)
-check("  the pool splits 1,000 ranked and 419 unique to the chapter",
-      [len(T('sources/jazzstandards_ranked_1000.tsv')),
-       len(T('residues/appendix_A_levine_unique_419.tsv'))], [1000, 419])
 
-dq = T('data/decision_queue_1419.tsv')
-check("the decision queue is the whole pool",       len(dq), 1419)
-check("  it reaches 1,000 ranks and 419 chapter entries",
-      [sum(1 for r in dq if r['warrant_1_rank']),
-       sum(1 for r in dq if r['warrant_2_chapter'])], [1000, 419])
-check("  and it renders no verdict on any of them",
-      sum(1 for r in dq if r['verdict'] or r['tier'] or r['division']), 0)
+check("every band follows § VI.3.a from the evidence columns", [x["title"] for x in M if band_of(x) != x["band"]], [])
+check("256 titles carry a logged call; 343 are reached",
+      (sum(1 for x in M if int(x["logged_calls"])), sum(1 for x in M if x["band"] != "Untouched")), (256, 343))
 
-gs  = T('sources/graded_series_552.tsv')
-gsv = T('sources/graded_series_volumes_27.tsv')
-check("the graded-series pool is 552 rows",           len(gs), 552)
-check("  across 27 volumes",                          len({r['block_id'] for r in gs}), 27)
-check("  resolving to 453 compositions",              len({r['match_key'] for r in gs}), 453)
-check("  the volume manifest sums to the pool",       sum(I(r['titles']) for r in gsv), 552)
-check("  every volume is banded",
-      sum(1 for r in gsv if r['band_assigned'] in
-          ('Foundational','Emerging Intermediate','Intermediate')), 27)
-_gsu = {}
-for _r in gs: _gsu.setdefault(_r['match_key'], _r['status'])
-check("  170 of the 453 are seated in this Index",
-      sum(1 for v in _gsu.values() if v == 'seated'), 170)
-check("  34 were declined, and 249 never entered the pool",
-      [sum(1 for v in _gsu.values() if v == 'declined'),
-       sum(1 for v in _gsu.values() if v == 'outside')], [34, 249])
-print("      the floor Rule 13B section 5 calls for. It grants no warrant and admits nothing.")
+# ---------------------------------------------------------------- phases (TABLE IV.5.c)
+ph = collections.Counter(x["phase"] for x in M if x["phase"])
+check("phases 67 + 58 + 49 = 174 [P4]", (ph["Foundational"], ph["Emerging Intermediate"], ph["Intermediate"]), (67, 58, 49))
+check("panel sizes at § VI.4 (62, 19, 39, 16, 19, 11, 2, 6)",
+      [sum(1 for x in by_idx[i] if x["phase"]) for i in IDX], [62, 19, 39, 16, 19, 11, 2, 6])
 
-alias = T('sources/title_alias_index.tsv')
-anom_keys = {r['match_key'] for r in T('sources/title_anomalies.tsv')}
-mem_keys  = {r['key'] for r in idx}
-check("the alias index is derived from the anomaly register",
-      sum(1 for r in alias if r['match_key'] not in anom_keys), 0)
-check("  every alias row points at a seated title",
-      sum(1 for r in alias if r['match_key'] not in mem_keys), 0)
-check("  and at a seat that exists",
-      sum(1 for r in alias if not r['tier'].startswith('List ') or not r['entry_no'].isdigit()), 0)
-check("  a refused join is never presented as an alias",
-      len({r['match_key'] for r in T('sources/title_anomalies.tsv')
-           if r['anomaly_class'] == 'refused join'} & {r['match_key'] for r in alias}), 0)
-cand = T('sources/pool_1419_candidates.tsv')
-check("  the blind candidate file is the same 1,419 titles",
-      [r['title'] for r in cand], [r['title'] for r in T('sources/pool_1419_alphabetical.tsv')])
-check("  and carries no disposition column",
-      list(cand[0].keys()), ['title'])
-check("  the pool is the ranking plus the chapter's unique set",
-      len(T('sources/jazzstandards_ranked_1000.tsv')) + len(T('residues/appendix_A_levine_unique_419.tsv')),
-      1419)
-print("      the ordering datum each source carries travels as a column, not as the")
-print("      sequence of the file. code/alpha.py states the convention.")
+# ---------------------------------------------------------------- the two call instruments (§ II, App. K)
+ml = read("sources/miller_london_calls_308.tsv")
+check("the log carries 2,038 calls on 308 titles", (sum(int(r["calls"]) for r in ml), len(ml)), (2038, 308))
+calls_1a = sum(int(x["logged_calls"]) for x in by_idx["1A"])
+check("Index 1A carries 1,190 of 2,038 logged calls (58.4 percent)", (calls_1a, round(100 * calls_1a / 2038, 1)), (1190, 58.4))
+w1 = read("sources/watkins_2010_list1_92.tsv")
+check("Watkins's List 1 prints 92 titles", len(w1), 92)
+on_list1 = [x for x in M if x["watkins_list1_count"]]
+check("all 92 List 1 titles are seated, 83 of them in Index 1",
+      (len(on_list1), sum(1 for x in on_list1 if x["index"] in ("1A", "1B"))), (92, 83))
+check("List 1 contributor counts match the source file",
+      sorted(int(x["watkins_list1_count"]) for x in on_list1), sorted(int(r["contributors"]) for r in w1))
+check("Watkins's List 2 prints 96 titles", len(read("sources/watkins_2010_list2_96.tsv")), 96)
 
-print("=" * 66)
-print("THE COLLEGIATE PANEL")
-print("=" * 66)
-psrc = T('panel/collegiate_panel_sources.tsv')
-puni = T('panel/collegiate_panel_union.tsv')
-check("fourteen programs are listed with URLs",      len(psrc), 14)
-check("  every one carries a URL",                   sum(1 for r in psrc if r['url'].startswith('http')), 14)
-check("  their printed rows sum to 1,496",           sum(I(r['rows_as_printed']) for r in psrc), 1496)
-check("  all retrieved on one day",                  len({r['retrieved'] for r in psrc}), 1)
-check("no title is carried by all fourteen",         sum(1 for r in puni if I(r['programs']) == 14), 0)
-check("  none by thirteen either",                   sum(1 for r in puni if I(r['programs']) == 13), 0)
-check("  about two in five sit at one school",
-      round(100 * sum(1 for r in puni if I(r['programs']) == 1) / len(puni)), 43)
-pseat = lambda t: len({r['index_entry'] for r in puni if r['in_the_index'] == t})
-check("the panel reaches all 93 seats of List 1A",   pseat('List 1A'), 93)
-check("  List 1B, 52 of 53",                         pseat('List 1B'), 52)
-check("  List 2, 87 of 116",                         pseat('List 2'), 87)
-check("  List 3, 47 of 141",                         pseat('List 3'), 47)
-check("  List 4, 16 of 99",                          pseat('List 4'), 16)
-check("  List 5, 88 of 227",
-      sum(pseat(t) for t in ('List 5A', 'List 5B', 'List 5C')), 88)
-check("  seats, not lines - 1A takes 94 panel titles into 93 seats",
-      sum(1 for r in puni if r['in_the_index'] == 'List 1A'), 94)
-print(f"      union {len(puni)}; the volume prints 462 and the gap is folding, not scope - see panel/README.md")
+# ---------------------------------------------------------------- residues (TABLE IV.3, App. A to D, App. K.9)
+A = read("residues/appendix_A_levine_unique_420.tsv")
+B = read("residues/appendix_B_levine_declined_237.tsv")
+C = read("residues/appendix_C_ranking_declined_464.tsv")
+D = read("residues/appendix_D_gioia_declined_6.tsv")
+check("App. A 420 [RA], App. B 237 [RB], App. C 464 [RC], App. D 6 [RD]", (len(A), len(B), len(C), len(D)), (420, 237, 464, 6))
+check("App. A: 183 seated on the chapter and 237 declined at App. B",
+      (sum(1 for r in A if r["seat"]), sum(1 for r in A if r["declined_at"] == "App. B")), (183, 237))
+seated_w2 = sorted(f'{x["index"]} #{x["seat"]}' for x in M if x["warrant"] == "2 chapter")
+check("App. A seats are exactly the warrant-2 seats", sorted(r["seat"] for r in A if r["seat"]), seated_w2)
+check("App. B titles are the App. A titles marked declined",
+      sorted(match_key(r["title_as_printed"]) for r in B), sorted(match_key(r["title_as_printed"]) for r in A if r["declined_at"]))
+ranks_seated = sorted(int(x["rank"]) for x in M if x["rank"])
+ranks_c = sorted(int(r["rank"]) for r in C)
+check("536 seated ranks and 464 App. C ranks partition 1 to 1,000",
+      sorted(ranks_seated + ranks_c), list(range(1, 1001)))
+check("A5 declines = 237 + 464 = 701", len(B) + len(C), 701)
+check("A1 pool = 536 + 464 + 420 = 1,420", len(ranks_seated) + len(C) + len(A), 1420)
+check("App. A #353 is Sugar; App. C #345 is Sugar (That Sugar Baby O' Mine)",
+      (A[352]["title_as_printed"], C[344]["title_as_printed"]), ("Sugar", "Sugar (That Sugar Baby O' Mine)"))
+rk = read("sources/jazzstandards_ranked_1000.tsv")
+check("the ranking file carries ranks 1 to 1,000", [int(r["rank"]) for r in rk], list(range(1, 1001)))
+title_at = {int(r["rank"]): r["title_as_ranked"] for r in rk}
+check("ranking #269 is Sugar (That Sugar Baby O' Mine), declined at App. C",
+      (title_at[269], 269 in ranks_c), ("Sugar (That Sugar Baby O' Mine)", True))
+check("no title in the ranking's top 100 is declined; nine in the top 200", (sum(1 for r in ranks_c if r <= 100), sum(1 for r in ranks_c if r <= 200)), (0, 9))
 
-print()
-print("=" * 66)
-print("RECORDING RANK, READMITTED AT THE CLOSE")
-print("=" * 66)
-rank = {}
-for r in js:
-    for k in (base(r['title_as_ranked']), full(r['title_as_ranked'])): rank.setdefault(k, int(r['rank']))
-def lookrank(t):
-    cands = [base(t), full(t)]
-    for m in re.finditer(r'\(AKA[,]?\s*([^)]*)\)', t, re.I):
-        for alt in re.split(r',| and ', m.group(1)):
-            if alt.strip(): cands += [base(alt), full(alt)]
-    for c in cands:
-        c2 = ALIAS.get(c, c)
-        if c2 in rank: return rank[c2]
-        for a, b in ALIAS.items():
-            if b == c2 and a in rank: return rank[a]
-    return None
-r1a = [lookrank(r['title_as_printed']) for r in idx if r['seat'] == '1A']
-check("79 List 1A titles carry a rank (R.4 W1a)",   sum(1 for x in r1a if x), 79)
-check("14 List 1A titles carry none (R.4 W2a)",     sum(1 for x in r1a if not x), 14)
-dec = {K(r['title']) for r in resB + resC}
-top100 = [r for r in js if int(r['rank']) <= 100]
-top200 = [r for r in js if int(r['rank']) <= 200]
-check("no title in the ranking's top 100 is declined",
-      sum(1 for r in top100 if K(r['title_as_ranked']) in dec), 0)
-check("nine titles in the top 200 are declined",
-      sum(1 for r in top200 if K(r['title_as_ranked']) in dec), 9)
-check("the first declined title is at rank 142",
-      min(int(r['rank']) for r in top200 if K(r['title_as_ranked']) in dec), 142)
-sep = {(r['higher_tier'], r['lower_tier']): r for r in T('data/tier_pair_separation.tsv')}
-check("sweep, rank cannot resolve 1A / 1B",         sep[('1A','1B')]['js_rank_pct'], '47.6')
-check("sweep, rank reverses at 1A / 5A",            sep[('1A','5A')]['js_rank_pct'], '56.0')
-check("sweep, rank reverses at List 3 / List 4",    sep[('3','4')]['js_rank_pct'], '84.8')
-check("  and the log has no resolution there",      sep[('3','4')]['miller_tie_pct'], '76')
+# ---------------------------------------------------------------- vocal bands (note under TABLE IV.6)
+V = read("data/vocal_band_worksheet_227.tsv")
+check("band worksheet has 227 rows", len(V), 227)
+check("source counts: 83 triple, 108 double, 36 single",
+      [sum(1 for r in V if r["source_count"] == s) for s in "321"], [83, 108, 36])
 
-print()
-print("=" * 66)
-bad = [r for r in RESULTS if not r[0]]
-for ok, name, got, want in RESULTS:
-    if not ok: print(f"FAIL  {name}\n        returned {got!r}, expected {want!r}")
-print(f"{len(RESULTS) - len(bad)} of {len(RESULTS)} checks passed.")
-print("=" * 66)
-sys.exit(1 if bad else 0)
+
+def median(v):
+    v = sorted(v); n = len(v)
+    return v[n // 2] if n % 2 else (v[n // 2 - 1] + v[n // 2]) / 2
+
+
+def quartile(v, p):
+    v = sorted(v); h = (len(v) - 1) * p; lo = int(h); hi = min(lo + 1, len(v) - 1)
+    return v[lo] + (v[hi] - v[lo]) * (h - lo)
+
+
+r3 = [int(r["rank"]) for r in V if r["source_count"] == "3" and r["rank"]]
+r2 = [int(r["rank"]) for r in V if r["source_count"] == "2" and r["rank"]]
+r1 = [int(r["rank"]) for r in V if r["source_count"] == "1" and r["rank"]]
+check("median ranks 114 / 324 / 550.5 (83 / 107 / 34 ranked titles)",
+      (median(r3), median(r2), median(r1), len(r3), len(r2), len(r1)), (114, 324, 550.5, 83, 107, 34))
+check("interquartile ranges 73 to 180 and 229.5 to 458 (linear)",
+      (quartile(r3, .25), quartile(r3, .75), quartile(r2, .25), quartile(r2, .75)), (73.0, 180.0, 229.5, 458.0))
+dc = collections.Counter(r["delta"] for r in V)
+check("42 screening drops, 1 rank drop (Lotus Blossom), 6 compiler seats",
+      (dc["screening drop"], dc["rank drop"], dc["compiler seat above its source-count band"],
+       [r["title"] for r in V if r["delta"] == "rank drop"]), (42, 1, 6, ["Lotus Blossom"]))
+check("worksheet rows match the membership file",
+      sorted((r["division"], r["seat"], match_key(r["title"])) for r in V),
+      sorted((x["index"], x["seat"], match_key(x["title"])) for x in M if x["index"].startswith("5")))
+
+# ---------------------------------------------------------------- style classification (§ VI.2.c, § VI.6.b)
+S = read("data/style_classification.tsv")
+basis = collections.Counter(r["basis"].split(";")[0] for r in S)
+check("classified corpus 491 and 29 set-rule entries; pool 520", (basis["classified"], basis["set-rule entry"], len(S)), (491, 29, 520))
+check("default pool by index at § VI.6.b (93, 53, 116, 141, 25, 48, 26, 18)",
+      [sum(1 for r in S if r["index"] == i) for i in IDX], [93, 53, 116, 141, 25, 48, 26, 18])
+reached45 = sorted((x["index"], x["seat"]) for x in M if x["index"] in ("4", "5A", "5B", "5C") and x["band"] != "Untouched")
+check("classified titles of Indexes 4 and 5 are exactly the reached titles (88)",
+      sorted((r["index"], r["seat"]) for r in S if r["index"] in ("4", "5A", "5B", "5C") and r["basis"].startswith("classified")), reached45)
+fixed = sorted((x["index"], x["seat"]) for x in M if (x["index"] == "4" and x["mark"] == "[P]") or
+               (x["index"].startswith("5") and x["bold"] and x["band"] == "Untouched"))
+check("set-rule entries are the three [P] titles of Index 4 and the 26 boldface titles no instrument reaches",
+      sorted((r["index"], r["seat"]) for r in S if r["basis"].startswith("set-rule")), fixed)
+vv = collections.Counter((r["index"], r["idiom"]) for r in S if r["index"].startswith("5") and r["basis"].startswith("classified"))
+check("vocal style values at Index 5A.1.e, 5B.1.e, 5C.1.e",
+      (vv[("5A", "Straight-ahead")], vv[("5A", "Swing")], vv[("5A", "Latin jazz - Brazilian")],
+       vv[("5B", "Straight-ahead")], vv[("5B", "Swing")], vv[("5B", "Latin jazz - Afro-Cuban")], vv[("5C", "Straight-ahead")]),
+      (35, 6, 1, 11, 1, 1, 11))
+check("twelve contested calls at § VI.5.e", len(read("data/style_contested_calls_12.tsv")), 12)
+
+# ---------------------------------------------------------------- name table (FM.6)
+NT = read("data/name_table.tsv")
+seat_title = {f'{x["index"]} #{x["seat"]}': x["title"] for x in M}
+check("every name-table seat resolves to the title it names",
+      [r["name_as_it_also_circulates"] for r in NT if match_key(seat_title.get(r["seat"], "")) != match_key(r["seated_as"])], [])
+fm6 = [r for r in NT if r["basis"] == "FM.6"]
+check("FM.6: fifty-two names, forty-nine compositions", (len(fm6), len({r["seat"] for r in fm6})), (52, 49))
+
+# ---------------------------------------------------------------- the panel (App. H, TABLE IV.8.b, App. L.3)
+res = panel.main()
+check("panel union under the six rules = 460", res["union"], 460)
+check("no title on thirteen or fourteen lists; four on twelve",
+      (sum(v for k, v in res["k"].items() if k >= 13), res["k"].get(12, 0)), (0, 4))
+check("one program only: 179 (39 percent)", (res["one_program"], round(100 * res["one_program"] / res["union"])), (179, 39))
+check("reach by tier at App. H (93, 52, 88, 47, 16, 92)",
+      [res["reach"][t] for t in ["1A", "1B", "2", "3", "4", "5"]], [93, 52, 88, 47, 16, 92])
+ps = read("panel/panel_sources_14.tsv")
+check("fourteen program documents, retrieved 26 August 2026", (len(ps), {r["retrieved"] for r in ps}), (14, {"2026-08-26"}))
+check("program title counts 313 down to 31",
+      [int(r["titles_as_printed"]) for r in ps], [313, 260, 168, 127, 112, 100, 82, 51, 50, 46, 42, 40, 37, 31])
+
+# ---------------------------------------------------------------- tier pairs (TABLE II.6, TABLE II.7)
+TP = {(r["higher_tier"], r["lower_tier"]): r for r in read("data/tier_pair_separation.tsv")}
+check("1A / 1B: ranking 47.6, log 22.9, survey 24.0",
+      (TP[("1A", "1B")]["ranking_pct"], TP[("1A", "1B")]["log_pct"], TP[("1A", "1B")]["survey_pct"]), ("47.6", "22.9", "24.0"))
+check("1A / 5A ranking 56.0; Index 2 / Index 3 ranking 24.6", (TP[("1A", "5A")]["ranking_pct"], TP[("2", "3")]["ranking_pct"]), ("56.0", "24.6"))
+
+# ---------------------------------------------------------------- the call-instrument join (App. E)
+# The checks above read the evidence file's own columns. These rebuild the join from
+# sources/ back to the seated titles, which is what a replicator does and what the
+# columns cannot be asked to confirm about themselves.
+from aliases import SEATED, BY_SOURCE  # noqa: E402
+
+FOLD = {match_key(v): match_key(s) for v, s in SEATED.items()}
+for _r in read("data/name_table.tsv"):
+    FOLD[match_key(_r["name_as_it_also_circulates"])] = match_key(_r["seated_as"])
+
+
+def jkey(title, source=None):
+    """match_key with the declared folds applied, source-scoped folds first."""
+    k = match_key(title)
+    for v, t in BY_SOURCE.get(source, {}).items():
+        if match_key(v) == k:
+            return match_key(t)
+    return FOLD.get(k, k)
+
+
+SEATED_KEYS = {jkey(x["title"]) for x in M}
+check("the 729 seated titles carry 729 distinct join keys", len(SEATED_KEYS), 729)
+
+for _name, _rel, _n in [
+        ("List 1", "sources/watkins_2010_list1_92.tsv", 92),
+        ("List 2", "sources/watkins_2010_list2_96.tsv", 96),
+        ("graded sequence", "sources/watkins_2010_graded_228.tsv", 193)]:
+    _k = {jkey(r["title_as_printed"]) for r in read(_rel)}
+    check(f"Watkins's {_name}: {_n} distinct titles, every one joining to a seat",
+          (len(_k), len(_k - SEATED_KEYS)), (_n, 0))
+
+WCAT = {jkey(r["title_as_printed"]) for r in read("sources/watkins_2010_categorical_137.tsv")}
+MILL = {jkey(r["title_as_logged"]) for r in read("sources/miller_london_calls_308.tsv")}
+MILL |= {jkey(r["title_as_printed"]) for r in read("sources/miller_published_201.tsv")}
+w_only, m_only, both = WCAT - SEATED_KEYS - MILL, MILL - SEATED_KEYS - WCAT, (WCAT & MILL) - SEATED_KEYS
+check("App. E: 39 reach the survey alone, 46 the log alone, 6 both, 91 in all",
+      (len(w_only), len(m_only), len(both), len((WCAT | MILL) - SEATED_KEYS)), (39, 46, 6, 91))
+RB = {jkey(r["title_as_printed"]) for r in read("residues/appendix_B_levine_declined_237.tsv")}
+RC0 = {jkey(r["title_as_printed"]) for r in read("residues/appendix_C_ranking_declined_464.tsv")}
+_unseated = (WCAT | MILL) - SEATED_KEYS
+check("App. E: 27 of the 91 print as declines, 64 never entered the pool",
+      (len(_unseated & (RB | RC0)), len(_unseated - RB - RC0)), (27, 64))
+_ml = read("sources/miller_london_calls_308.tsv")
+check("the log: 2,038 calls on 308 titles; the 46 it reaches alone carry 148",
+      (sum(int(r["calls"]) for r in _ml), len(_ml),
+       sum(int(r["calls"]) for r in _ml if jkey(r["title_as_logged"]) in m_only)), (2038, 308, 148))
+
+RESIDUE_KEYS = SEATED_KEYS | {jkey(r["title_as_printed"]) for rel in
+                              ["residues/appendix_A_levine_unique_420.tsv",
+                               "residues/appendix_B_levine_declined_237.tsv",
+                               "residues/appendix_C_ranking_declined_464.tsv",
+                               "residues/appendix_D_gioia_declined_6.tsv"] for r in read(rel)}
+_NT = read("data/name_table.tsv")
+check("every declared fold resolves to a seated or a printed-residue title",
+      sorted(set(list(SEATED.values()) + [r["seated_as"] for r in _NT]
+                 + [t for m in BY_SOURCE.values() for t in m.values()])
+             - {v for v in list(SEATED.values()) + [r["seated_as"] for r in _NT]
+                + [t for m in BY_SOURCE.values() for t in m.values()]
+                if match_key(v) in RESIDUE_KEYS}), [])
+check("no fold points at another fold's source, which would make the join order matter",
+      sorted(v for v in list(SEATED.values()) + [r["seated_as"] for r in _NT]
+             if match_key(v) in FOLD and FOLD[match_key(v)] != match_key(v)), [])
+_SEATOF = {jkey(x["title"]): x["index"] + " #" + x["seat"] for x in M}
+check("the name table's 133 seat addresses all agree with the roster",
+      (len(_NT), sorted(r["name_as_it_also_circulates"] for r in _NT
+                        if _SEATOF.get(jkey(r["seated_as"])) != r["seat"])), (133, []))
+
+# The chapter and the guide are not in this repository (App. J Rule 13), so their presence
+# columns cannot be rebuilt from a source file. They can be held against each other.
+EJ = {r["title"]: r for r in read("data/evidence_join_729.tsv")}
+check("the two data files agree on every seat", sorted(EJ) == sorted(x["title"] for x in M), True)
+check("in_guide and guide_form agree on all 729 seats, at 258 present",
+      (sorted(x["title"] for x in M if bool(x["in_guide"].strip()) != bool(EJ[x["title"]]["guide_form"].strip())),
+       sum(1 for x in M if x["in_guide"].strip())), ([], 258))
+check("in_chapter and chapter_form agree on all 729 seats, at 183 warrant 2 plus the overlap",
+      sorted(x["title"] for x in M if bool(x["in_chapter"].strip()) != bool(EJ[x["title"]]["chapter_form"].strip())), [])
+
+RANKED = {jkey(r["title_as_ranked"]) for r in read("sources/jazzstandards_ranked_1000.tsv")}
+RC = {jkey(r["title_as_printed"]) for r in read("residues/appendix_C_ranking_declined_464.tsv")}
+check("Rule 9, from the ranking file: 536 seated + 464 declined = 1,000, disjoint",
+      (len(RANKED & SEATED_KEYS), len(RANKED & RC), len(RC & SEATED_KEYS), len(RANKED)),
+      (536, 464, 0, 1000))
+
+# ---------------------------------------------------------------- the prompt (App. J Rule 13)
+pp = os.path.join(ROOT, "prompts", "rule_13_screening_prompt.txt")
+raw = open(pp, "rb").read()
+sums = dict(line.split("  ")[::-1] for line in open(os.path.join(ROOT, "prompts", "SHA256SUMS")).read().splitlines() if line)
+check("prompt SHA-256 matches SHA256SUMS", hashlib.sha256(raw).hexdigest(), sums.get("rule_13_screening_prompt.txt"))
+check("prompt is plain ASCII, opens [BEGIN PROMPT], closes [/END PROMPT] and one newline",
+      (all(b < 128 for b in raw), raw.startswith(b"[BEGIN PROMPT]"), raw.endswith(b"[/END PROMPT]\n")), (True, True, True))
+
+print(f"\n{sum(RESULTS)} of {len(RESULTS)} checks pass")
+sys.exit(0 if all(RESULTS) else 1)

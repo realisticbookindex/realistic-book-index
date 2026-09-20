@@ -1,0 +1,4 @@
+# No line-ending conversion on any file. The SHA-256 printed at App. J Rule 13
+# is computed on the LF-terminated prompt file, and a checkout that converts
+# line endings would fail the checksum.
+* -text
