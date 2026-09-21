@@ -93,10 +93,11 @@ wider set carries a lyric that a singer can front at a session without holding t
 them, because italic turns on a stricter test and the counts printed at Indexes 1A, 1B and
 2 turn on that test. The file records them for the set builder. A title is
 entered only where known recordings carry the vocal, so a lyric that exists without a
-standard vocal version is left out. All four instrumental indexes are read - 16, 10, 12 and 6
-rows. A title is entered only where a named recording carries the vocal. Two checks hold it:
-forty-four rows across those indexes, every one on a seated instrumental with no duplicate
-seat, and every title matching the roster at its seat.
+standard vocal version is left out, and so is a title whose only vocal is a single vocalese
+treatment. All four instrumental indexes are read - 16, 10, 12 and 5 rows. A title is entered
+only where a named recording carries the vocal. Two checks hold it: forty-three rows across
+those indexes, every one on a seated instrumental with no duplicate seat, and every title
+matching the roster at its seat.
 
 The rule applied throughout the Index 4 file: **provenance is who wrote the tune; idiom is
 the tradition the tune is called in.** That is the rule the volume's own 25 classified Index 4 rows
@@ -113,7 +114,7 @@ classified; and the two files together covering all 99 Index 4 seats exactly onc
 | `data/vocal_band_worksheet_227.tsv` | 227 | source count per vocal title, the rank drop, the forty-two screening drops, the six compiler seats | the note under TABLE IV.6: "the band file at the repository" |
 | `data/style_classification.tsv` | 520 | provenance, idiom, rhythmic frame, form block and harmonic terrain for the 491 classified titles and the 29 set-rule entries, and a ballad column the volume does not carry | § VI, opening; § VI.2.c; the ballad column, none |
 | `data/setbuilder_extension.tsv` | 74 | the same fields for the 74 Index 4 seats the style page does not classify, read by the compiler for the set builder alone | none |
-| `data/vocal_option.tsv` | 44 | instrumental seats at Indexes 1A, 1B, 2 and 3 carrying a lyric a singer can front, with the lyricist and the named recordings that carry it | none |
+| `data/vocal_option.tsv` | 43 | instrumental seats at Indexes 1A, 1B, 2 and 3 carrying a lyric a singer can front, with the lyricist and the named recordings that carry it | none |
 | `data/style_contested_calls_12.tsv` | 12 | the idiom calls a second reader could file differently, with the argument for moving each | § VI.5.e |
 | `data/name_table.tsv` | 133 | FM.6's fifty-two names, the case and punctuation variants, and the nine chapter folds | FM.6; App. J Rule 6d |
 | `data/tier_pair_separation.tsv` | 12 | for each tier pair, the share of title-against-title comparisons the lower tier wins on the ranking, the log and the survey | TABLE II.6, TABLE II.7 |

@@ -359,12 +359,12 @@ check("the extension and the style file together cover all 99 Index 4 seats",
 # The third reading that is not in the volume. Instrumental seats at Indexes 1 to 3 carrying a
 # lyric a singer can front. All four instrumental indexes. No printed count uses it.
 VO = read("data/vocal_option.tsv")
-check("the vocal-option file: 44 rows across all four instrumental indexes, all seated, no duplicate seat",
+check("the vocal-option file: 43 rows across all four instrumental indexes, all seated, no duplicate seat",
       (len(VO),
        sorted({r["index"] for r in VO}),
        sorted(r["title"] for r in VO if (r["index"], r["seat"]) not in _SEATS),
        len(VO) - len({(r["index"], r["seat"]) for r in VO})),
-      (44, ["1A", "1B", "2", "3"], [], 0))
+      (43, ["1A", "1B", "2", "3"], [], 0))
 check("its titles match the roster at those seats",
       sorted(r["title"] for r in VO
              if r["title"] != {(x["index"], x["seat"]): x["title"] for x in M}.get((r["index"], r["seat"]))),

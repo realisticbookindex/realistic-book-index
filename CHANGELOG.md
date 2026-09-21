@@ -2,9 +2,10 @@
 
 ## Unreleased
 
-- `data/vocal_option.tsv` is added, 44 rows across Indexes 1A, 1B, 2 and 3: instrumental
+- `data/vocal_option.tsv` is added, 43 rows across Indexes 1A, 1B, 2 and 3: instrumental
   seats carrying a lyric a singer can front, for the set builder. A title is entered only
-  where a named recording carries the vocal. It is not the italic mark, which
+  where a named recording carries the vocal, and a single vocalese treatment does not
+  count as one. It is not the italic mark, which
   turns on a stricter test, and no printed count uses it. Two checks hold it.
 - `data/setbuilder_extension.tsv` is added, 74 rows: a reading of the Index 4 seats the
   volume's style page does not classify, for the set builder alone. It is a separate file
