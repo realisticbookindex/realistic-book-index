@@ -197,8 +197,59 @@ The file is plain ASCII and ends in one newline. `.gitattributes` turns off line
 
 ---
 
+## What an exception has to carry
+
+App. L.3 of the volume sets out the standard an objection has to meet. The volume states
+that these criteria are not a gate the author administers but the standard the compilation
+held itself to, set out so that an objection raised anywhere can be checked by anyone. What
+follows restates that standard in this repository's terms, with the files that let each part
+of it be tested here rather than on the page.
+
+A proposal names one title and the disposition sought - admit it, remove it, or move it to a
+different index - and then meets three tests.
+
+**1. Warrant.** Point to a published source that carries the title: a survey or a ranking, a
+repertoire list or a pedagogical volume by someone other than this volume's compiler, or a
+documented record of performance. An assertion that the composition is good is not a
+warrant. The reasoning the volume gives is that all three pool sources already selected on
+grounds that include merit as each of them defined it, so merit does not separate a proposed
+title from the 1,420 that were already screened.
+
+**2. Failure.** Show where the volume's own warrants did not reach the title that yours
+does. Four warrants admitted the 729 seats, and each can be tested from the files here.
+
+| warrant | what it tests | seats | testable here |
+|---|---|---|---|
+| ranking | presence in the ranked 1,000 | 536 | yes - `sources/jazzstandards_ranked_1000.tsv` |
+| chapter | presence in Levine ch. 21, net of the ranking | 183 | yes - `residues/appendix_A_levine_unique_420.tsv` carries every chapter entry the ranking does not |
+| guide | presence in Gioia, corroborative only | 0 net | the guide is print only, and no title enters on it alone |
+| filter | documented call frequency or breadth at the declared settings | 10 | yes - the `warrant` column of `data/index_membership_729.tsv` |
+
+A fifth warrant, presence in the published repertoire of a named degree-granting program, is
+declared in the volume and asserted for no title in this edition. The highest of the
+criteria is unoccupied.
+
+Whether the title was screened already and declined is answerable here as well.
+`residues/appendix_B_levine_declined_237.tsv`,
+`residues/appendix_C_ranking_declined_464.tsv` and
+`residues/appendix_D_gioia_declined_6.tsv` print every decline by name, the second with the
+rank it carried.
+
+**3. Displacement.** Name the title the proposal displaces and say why it is the weaker of
+the two on the tests above. A proposal that only adds does not meet this test. One case is
+exempt: a proposal aimed at the filter itself rather than at one of its results displaces
+nothing, and the volume states that this is the heavier proposal and the one it most wants
+to see.
+
+**Where a finished exception goes.** Not here. A correction to a count, a locator or a file
+is an issue in this repository and receives a dated, attributed record. An exception
+disputes a judgment, and no adjudication of one is offered or operated. A reader who does
+the work owns the result and is asked to publish it.
+
+---
+
 ## Release, citation and corrections
 
-This release is tagged `v15.0.1` and archived on Zenodo, which mints a version DOI for it. The tag and the DOI fill the two placeholders in the App. J Rule 13 note; cite the version DOI (see `CITATION.cff`). A correction to a count, a locator or a file is filed here as an issue and receives a dated, attributed record (App. L.8). An exception to a seat or to the filter is not a correction; App. L.3 states what one has to carry.
+This release is tagged `v15.0.1` and archived on Zenodo, which mints a version DOI for it. The tag and the DOI fill the two placeholders in the App. J Rule 13 note; cite the version DOI (see `CITATION.cff`). A correction to a count, a locator or a file is filed here as an issue and receives a dated, attributed record (App. L.8). An exception to a seat or to the filter is not a correction; its standard is restated above at **What an exception has to carry**.
 
 The ranking, the survey, the log and the program documents are other people's work and are cited in full at `SOURCES.md`. The keyings under `sources/` and `panel/` are transcriptions made for this project; where a keying differs from its published source, the published source governs. Everything under `data/`, `residues/` and `code/` is this project's own work.

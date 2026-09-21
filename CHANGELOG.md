@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+- `README.md` gains **What an exception has to carry**, which restates the App. L.3
+  standard an objection has to meet, in this repository's terms and with the file that
+  tests each part of it. Every test it names can be run here: the four warrants against
+  the `warrant` column and the source and residue files, the declines by name. A reader
+  who wants to dispute a seat no longer has to hold the volume to learn what would count.
+  No count, file or check changes.
 - `data/vocal_option.tsv` is added, 43 rows across Indexes 1A, 1B, 2 and 3: instrumental
   seats carrying a lyric a singer can front, for the set builder. A title is entered only
   where a named recording carries the vocal, and a single vocalese treatment does not
