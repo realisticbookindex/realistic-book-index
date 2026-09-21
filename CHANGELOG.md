@@ -2,11 +2,19 @@
 
 ## Unreleased
 
+- `data/vocal_option.tsv` is added, 44 rows across Indexes 1A, 1B, 2 and 3: instrumental
+  seats carrying a lyric a singer can front, for the set builder. A title is entered only
+  where a named recording carries the vocal. It is not the italic mark, which
+  turns on a stricter test, and no printed count uses it. Two checks hold it.
+- `data/setbuilder_extension.tsv` is added, 74 rows: a reading of the Index 4 seats the
+  volume's style page does not classify, for the set builder alone. It is a separate file
+  so that `style_classification.tsv` stays at 520 rows and the 491 and 520 printed at
+  § VI.2.c and § VI.6.b stay true of it. Every row states its own basis. Two checks hold
+  it, taking `code/verify.py` to 94.
 - `data/style_classification.tsv` gains a `ballad` column, 75 of 520 rows marked. It is a
   reading, not a documentary fact, it has no locus in the volume, and no printed count
   depends on it. It is published rather than held privately so that a reader can disagree
-  with it. `code/verify.py` runs 90 checks; the ninetieth holds the column against the
-  roster.
+  with it. `code/verify.py` holds the column against the roster.
 - Nothing in the instrument moves. The prompt, its checksum, the residues, the roster and
   every route to 729 are as v15.0.1 archived them.
 

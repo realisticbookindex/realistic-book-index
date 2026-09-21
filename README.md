@@ -6,7 +6,7 @@ This repository holds the files *The Realistic Book Index* (Draft 15) sends a re
 python3 code/verify.py
 ```
 
-The script runs 90 checks, prints one line for each, and exits 0 when all pass. It needs Python 3 and nothing else. Twelve of the checks rebuild a join rather than read a column: App. E is reconstructed from `sources/` back to the seated titles, Rule 9's ranking closure is recomputed from the ranking file and App. C, and the two data files are held against each other. A column cannot confirm itself, and those twelve are what a replicator's own run does.
+The script runs 94 checks, prints one line for each, and exits 0 when all pass. It needs Python 3 and nothing else. Twelve of the checks rebuild a join rather than read a column: App. E is reconstructed from `sources/` back to the seated titles, Rule 9's ranking closure is recomputed from the ranking file and App. C, and the two data files are held against each other. A column cannot confirm itself, and those twelve are what a replicator's own run does.
 
 **Two things to do first, if this is your first time.** On macOS, typing `python3` opens a dialog offering to install the developer tools; accept it, wait, and try again. On Windows, install Python from python.org and tick "Add python.exe to PATH" on the first screen. Nothing else is needed - no libraries, no accounts, no setup.
 
@@ -57,7 +57,7 @@ Two call instruments were opened after the Index closed and admit nothing: Mark 
 
 ---
 
-## One column the volume does not carry
+## Three things the volume does not carry
 
 `data/style_classification.tsv` holds a `ballad` column, marking 75 of the 520 rows. It is
 the only column in this repository with no locus in the volume, and it is here on purpose
@@ -75,6 +75,35 @@ It is checked like the rest of the file - 75 marks, every one on a seated row, n
 value - so that a reader who disagrees with it can see exactly what it claims before
 disagreeing.
 
+`data/setbuilder_extension.tsv` is the second. The volume's style page classifies 491
+titles and stops there, which leaves 74 of Index 4's 99 seats with no idiom, feel, form or
+origin. Those fields are what a set builder scores a joint on, so without them those 74
+titles cannot be ordered against anything.
+
+The file carries a reading of exactly those 74 and nothing else. It is deliberately a
+separate file: `style_classification.tsv` stays at 520 rows, so the 491 and the 520 the
+volume prints at § VI.2.c and § VI.6.b remain true of the file they describe. Every row
+states its own basis - `set-builder reading; not classified in the volume` - so no row of
+the author's classification and no row of this one can be mistaken for the other.
+
+`data/vocal_option.tsv` is the third. Index 1 to 3 seats are instrumental titles, and the
+volume's italic marks the ones holding a current independent life as vocal repertoire. A
+wider set carries a lyric that a singer can front at a session without holding that life -
+*Afro Blue*, *Work Song*, *Night in Tunisia*, *Well You Needn't*. The volume does not mark
+them, because italic turns on a stricter test and the counts printed at Indexes 1A, 1B and
+2 turn on that test. The file records them for the set builder. A title is
+entered only where known recordings carry the vocal, so a lyric that exists without a
+standard vocal version is left out. All four instrumental indexes are read - 16, 10, 12 and 6
+rows. A title is entered only where a named recording carries the vocal. Two checks hold it:
+forty-four rows across those indexes, every one on a seated instrumental with no duplicate
+seat, and every title matching the roster at its seat.
+
+The rule applied throughout the Index 4 file: **provenance is who wrote the tune; idiom is
+the tradition the tune is called in.** That is the rule the volume's own 25 classified Index 4 rows
+follow, where Star Dust sits in the Armstrong and Waller group and reads Straight-ahead.
+Two checks hold the file: 74 rows, all at Index 4, all on seated seats, none already
+classified; and the two files together covering all 99 Index 4 seats exactly once.
+
 ## Layout, and the volume pointer each file answers
 
 | file | rows | what it is | the volume's pointer |
@@ -83,6 +112,8 @@ disagreeing.
 | `data/evidence_join_729.tsv` | 729 | the source forms each seat was matched on, Watkins's categorical split and graded years, Miller's Top 201 | § II, § VI.3 |
 | `data/vocal_band_worksheet_227.tsv` | 227 | source count per vocal title, the rank drop, the forty-two screening drops, the six compiler seats | the note under TABLE IV.6: "the band file at the repository" |
 | `data/style_classification.tsv` | 520 | provenance, idiom, rhythmic frame, form block and harmonic terrain for the 491 classified titles and the 29 set-rule entries, and a ballad column the volume does not carry | § VI, opening; § VI.2.c; the ballad column, none |
+| `data/setbuilder_extension.tsv` | 74 | the same fields for the 74 Index 4 seats the style page does not classify, read by the compiler for the set builder alone | none |
+| `data/vocal_option.tsv` | 44 | instrumental seats at Indexes 1A, 1B, 2 and 3 carrying a lyric a singer can front, with the lyricist and the named recordings that carry it | none |
 | `data/style_contested_calls_12.tsv` | 12 | the idiom calls a second reader could file differently, with the argument for moving each | § VI.5.e |
 | `data/name_table.tsv` | 133 | FM.6's fifty-two names, the case and punctuation variants, and the nine chapter folds | FM.6; App. J Rule 6d |
 | `data/tier_pair_separation.tsv` | 12 | for each tier pair, the share of title-against-title comparisons the lower tier wins on the ranking, the log and the survey | TABLE II.6, TABLE II.7 |

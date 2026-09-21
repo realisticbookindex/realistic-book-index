@@ -338,6 +338,38 @@ check("the style file's ballad column: 75 marks, all on seated rows, no other va
        sorted(r["title"] for r in SC if r["ballad"] == "Y" and (r["index"], r["seat"]) not in _SEATS)),
       (520, 75, [], []))
 
+# --------------------------------------------- the set builder's Index 4 extension (tool input)
+# Also not an apparatus figure. The volume's style page classifies 491 titles and stops; this
+# file carries a reading of the 74 Index 4 seats it does not reach, for the set builder alone.
+# It is kept out of style_classification.tsv so that VI.2.c's 491 and 520 stay true of that file.
+EXT = read("data/setbuilder_extension.tsv")
+_SC_SEATS = {(r["index"], r["seat"]) for r in SC}
+check("the set-builder extension: 74 Index 4 seats, all seated, none already classified",
+      (len(EXT),
+       sorted({r["index"] for r in EXT}),
+       sorted(r["title"] for r in EXT if (r["index"], r["seat"]) not in _SEATS),
+       sorted(r["title"] for r in EXT if (r["index"], r["seat"]) in _SC_SEATS),
+       sorted({r["ballad"] for r in EXT} - {"Y", ""})),
+      (74, ["4"], [], [], []))
+check("the extension and the style file together cover all 99 Index 4 seats",
+      sorted([int(r["seat"]) for r in EXT] + [int(r["seat"]) for r in SC if r["index"] == "4"]),
+      sorted(int(x["seat"]) for x in M if x["index"] == "4"))
+
+# ------------------------------------------- the set builder's vocal-option file (tool input)
+# The third reading that is not in the volume. Instrumental seats at Indexes 1 to 3 carrying a
+# lyric a singer can front. All four instrumental indexes. No printed count uses it.
+VO = read("data/vocal_option.tsv")
+check("the vocal-option file: 44 rows across all four instrumental indexes, all seated, no duplicate seat",
+      (len(VO),
+       sorted({r["index"] for r in VO}),
+       sorted(r["title"] for r in VO if (r["index"], r["seat"]) not in _SEATS),
+       len(VO) - len({(r["index"], r["seat"]) for r in VO})),
+      (44, ["1A", "1B", "2", "3"], [], 0))
+check("its titles match the roster at those seats",
+      sorted(r["title"] for r in VO
+             if r["title"] != {(x["index"], x["seat"]): x["title"] for x in M}.get((r["index"], r["seat"]))),
+      [])
+
 # ---------------------------------------------------------------- the prompt (App. J Rule 13)
 pp = os.path.join(ROOT, "prompts", "rule_13_screening_prompt.txt")
 raw = open(pp, "rb").read()
